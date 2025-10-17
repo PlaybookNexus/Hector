@@ -1,6 +1,7 @@
 import time
-from datetime import datetime
 from dashboard.motions import motions
+from utils.logger import log_motion  # Centralized logging
+from datetime import datetime
 
 def color_risk(risk):
     color_map = {
@@ -8,8 +9,7 @@ def color_risk(risk):
         "high": "\033[93m",      # Yellow
         "critical": "\033[91m"   # Red
     }
-    color = color_map.get(risk, "")
-    return f"{color}{risk}\033[0m" if color else risk
+    return f"{color_map.get(risk, '')}{risk}\033[0m" if risk in color_map else risk
 
 def render_dashboard(graph):
     print("\n🧠 Hector Override Dashboard")
@@ -32,17 +32,10 @@ def render_dashboard(graph):
         print("-" * 40)
 
 def animate_motion(agent_id, routine):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_lines = [f"[{timestamp}] {agent_id} performing {routine} routine"]
-
+    frames = motions.get(routine, [])
     print(f"\n🎭 {agent_id} performing {routine} routine...")
-    for frame in motions.get(routine, []):
+    for frame in frames:
         print(f"   {frame}")
-        log_lines.append(f"   {frame}")
         time.sleep(0.3)
 
-    try:
-        with open("logs/motion.log", "a", encoding="utf-8") as log:
-            log.write("\n".join(log_lines) + "\n")
-    except Exception as e:
-        print(f"⚠️ Failed to write to motion.log: {e}")
+    log_motion(agent_id, routine, frames)
