@@ -48,5 +48,8 @@ def main():
     recovery = RecoveryManager(graph)
     recovery.check_and_recover()
 
+    from dashboard.ui import render_dashboard
+    render_dashboard(graph)
+
 if __name__ == "__main__":
     main()
