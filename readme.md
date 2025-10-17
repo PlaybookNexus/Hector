@@ -12,7 +12,7 @@ Hector is a remixable autonomy framework for expressive agents, override choreog
 ```bash
 git clone https://github.com/PlaybookNexus/Hector.git
 cd Hector
-python3 main.py
+PYTHONIOENCODING=utf-8 python main.py
 ```
 
 If you see logging errors:
