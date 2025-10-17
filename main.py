@@ -31,6 +31,7 @@ def main():
 
     # Simulate risk escalation
     humanoid.vector_state["risk"] = "high"
+    arm.vector_state["risk"] = "critical"  # ← Add this here
 
     # Check for overrides
     override = OverrideManager(graph)
@@ -40,6 +41,12 @@ def main():
     print("\n Vector Summary:")
     for agent_id, state in graph.get_vector_summary().items():
         print(f"{agent_id}: {state}")
+
+    from graph.recovery import RecoveryManager
+
+    # After override check
+    recovery = RecoveryManager(graph)
+    recovery.check_and_recover()
 
 if __name__ == "__main__":
     main()
