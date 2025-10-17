@@ -1,4 +1,5 @@
 from graph.mission_graph import MissionGraph
+from graph.override import OverrideManager
 from agents.robot_arm_agent import RobotArmAgent
 from agents.humanoid_agent import HumanoidAgent
 
@@ -27,6 +28,13 @@ def main():
 
     graph.assign_task("humanoid-01", "kata")
     graph.dispatch_all()
+
+    # Simulate risk escalation
+    humanoid.vector_state["risk"] = "high"
+
+    # Check for overrides
+    override = OverrideManager(graph)
+    override.check_risk_levels()
 
     # Show vector summary
     print("\n Vector Summary:")
