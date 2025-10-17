@@ -26,3 +26,25 @@ def render_dashboard(graph):
         if override:
             print(f"   Override Status: {override}")
         print("-" * 40)
+import time
+
+def animate_motion(agent_id, routine):
+    print(f"\n🎭 {agent_id} performing {routine} routine...")
+    frames = {
+        "ballet": [
+            "🩰 base sweep →",
+            "🩰 arm extension ↑",
+            "🩰 wrist flourish ✨",
+            "🩰 gentle grip 🤏"
+        ],
+        "kata": [
+            "🥋 guard stance 🛡️",
+            "🥋 strike ➡️",
+            "🥋 block ⛔",
+            "🥋 bow 🙇"
+        ]
+    }
+
+    for frame in frames.get(routine, []):
+        print(f"   {frame}")
+        time.sleep(0.3)
