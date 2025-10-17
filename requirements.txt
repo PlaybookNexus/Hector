@@ -1,0 +1,4 @@
+rich
+networkx
+matplotlib
+flask
