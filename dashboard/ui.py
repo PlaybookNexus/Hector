@@ -1,4 +1,5 @@
 import time
+from dashboard.motions import motions
 
 def color_risk(risk):
     colors = {
@@ -32,27 +33,6 @@ def render_dashboard(graph):
 
 def animate_motion(agent_id, routine):
     print(f"\n🎭 {agent_id} performing {routine} routine...")
-    routines = {
-        "ballet": [
-            "🩰 base sweep →",
-            "🩰 arm extension ↑",
-            "🩰 wrist flourish ✨",
-            "🩰 gentle grip 🤏"
-        ],
-        "kata": [
-            "🥋 guard stance 🛡️",
-            "🥋 strike ➡️",
-            "🥋 block ⛔",
-            "🥋 bow 🙇"
-        ],
-        "intercept": [
-            "🛡️ scanning perimeter",
-            "🛡️ posture shift",
-            "🛡️ signal sent",
-            "🛡️ stance locked"
-        ]
-    }
-
-    for frame in routines.get(routine, []):
+    for frame in motions.get(routine, []):
         print(f"   {frame}")
         time.sleep(0.3)
