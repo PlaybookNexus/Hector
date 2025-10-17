@@ -84,3 +84,19 @@ class RobotArmAgent:
 
     def log_motion(self, step):
         print(f"[{self.id}] Motion: {step}")
+
+    def abort(self):
+        print(f"[Override] Aborting tasks for {self.id}")
+        self.vector_state["status"] = "aborted"
+        self.vector_state["task"] = None
+
+        # Log override event
+        with open("logs/override.log", "a") as log:
+            log.write(f"{time.time()} - {self.id} aborted\n")
+
+    def reset(self):
+        print(f"[Recovery] Resetting {self.id}")
+        self.status = "idle"
+        self.task = None
+        self.vector_state["status"] = "recovered"
+    
