@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from dashboard.motions import motions
 
 def color_risk(risk):
@@ -32,7 +33,18 @@ def render_dashboard(graph):
         print("-" * 40)
 
 def animate_motion(agent_id, routine):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_lines = [f"[{timestamp}] {agent_id} performing {routine} routine"]
+
     print(f"\n🎭 {agent_id} performing {routine} routine...")
     for frame in motions.get(routine, []):
         print(f"   {frame}")
+        log_lines.append(f"   {frame}")
         time.sleep(0.3)
+
+    try:
+        with open("logs/motion.log", "a") as log:
+            for line in log_lines:
+                log.write(line + "\n")
+    except FileNotFoundError:
+        print("⚠️ motion.log not found — skipping log write.")
