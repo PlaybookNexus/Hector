@@ -5,6 +5,11 @@ from agents.robot_arm_agent import RobotArmAgent
 from agents.humanoid_agent import HumanoidAgent
 from dashboard.ui import render_dashboard, animate_motion
 
+import os
+
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+
 def main():
     print("Booting Hector mesh...")
 
