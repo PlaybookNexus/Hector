@@ -1,68 +1,65 @@
-## 🧠 Hector: Modular Autonomy Mesh
+## 🧠 `README.md` — Hector: Modular Autonomy Mesh
 
-Hector is a remixable autonomy framework for expressive agents, mission choreography, and contributor empowerment. Designed for robotics, sensors, and legal transparency, Hector supports pick/place routines, martial arts flows, and real-time override logic.
+```markdown
+# 🧠 Hector: Modular Autonomy Mesh
+
+Hector is a remixable autonomy framework for expressive agents, override choreography, and contributor empowerment. Designed for robotics, sensors, and legal transparency, Hector supports pick/place routines, martial arts flows, and real-time reflex logic.
 
 ---
 
-## 🚀 Setup Instructions
-
-### 🧱 Clone the Repo
+## 🚀 Quick Start (Raspberry Pi or Linux)
 
 ```bash
 git clone https://github.com/PlaybookNexus/Hector.git
 cd Hector
-```
-
-### 🐍 Python Environment
-
-Ensure Python 3 is installed. Optionally create a virtual environment:
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Install dependencies (if `requirements.txt` is populated):
-
-```bash
-pip install -r requirements.txt
-```
-
-### 🧪 Run the Test Harness
-
-```bash
 python3 main.py
 ```
 
-This boots the `RobotArmAgent`, executes a pick routine, and performs a ballet sequence.
+If you see logging errors:
+
+```bash
+mkdir logs
+```
 
 ---
 
-## 🧩 Folder Structure
+## 🧩 What Hector Does
+
+- Animates routines like ballet, kata, saluting, intercept
+- Logs every motion to `logs/motion.log` with emoji and timestamps
+- Triggers override and recovery based on agent risk
+- Renders a live dashboard with agent status and vector summaries
+
+---
+
+## 🛠️ Folder Overview
 
 ```
 Hector/
-├── agents/              # Modular agents (robot arm, humanoid, etc.)
-├── graph/               # Mission graph and coordination logic
-├── dashboard/           # Contributor UI and control flows
-├── messaging/           # Inter-agent communication scaffolds
-├── configs/             # Runtime configs and overrides
-├── docs/                # Documentation and onboarding guides
-├── tests/               # Unit and integration tests
-├── main.py              # Entry point for testing and orchestration
+├── agents/       # RobotArmAgent, HumanoidAgent, etc.
+├── graph/        # MissionGraph, OverrideManager, RecoveryManager
+├── dashboard/    # UI, motion routines, logging
+├── utils/        # Centralized logger and helpers
+├── logs/         # Motion history (auto-created)
+├── main.py       # Entry point for testing and orchestration
 ```
 
 ---
 
-## 🛠️ Deployment Notes
+## 🧠 Remixing Hector
 
-- Developed on Windows, deployed to Raspberry Pi running Ubuntu
-- Use `git pull` to sync updates across machines
-- GPIO and sensor routines can be added per agent
+- Add new routines in `dashboard/motions.py`
+- Animate with `animate_motion(agent_id, "routine")`
+- Log with `log_motion(agent_id, routine, frames)`
+- Visualize with `visualizer.py` (coming soon)
 
 ---
 
 ## 🤝 Contributing
 
-Coming soon: `CONTRIBUTING.md` with guidelines for adding agents, routines, and expressive flows.
+Coming soon: `CONTRIBUTING.md` with guides for adding agents, override logic, and expressive flows.
 
+---
+
+Built for remixing. Ready to dance.
+```
