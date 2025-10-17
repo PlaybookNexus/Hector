@@ -3,7 +3,7 @@ from agents.robot_arm_agent import RobotArmAgent
 from agents.humanoid_agent import HumanoidAgent
 
 def main():
-    print("🧠 Booting Hector mesh...")
+    print("Booting Hector mesh...")
 
     # Initialize mission graph and agents
     graph = MissionGraph()
@@ -29,7 +29,7 @@ def main():
     graph.dispatch_all()
 
     # Show vector summary
-    print("\n🧠 Vector Summary:")
+    print("\n Vector Summary:")
     for agent_id, state in graph.get_vector_summary().items():
         print(f"{agent_id}: {state}")
 
