@@ -3,12 +3,12 @@ from datetime import datetime
 from dashboard.motions import motions
 
 def color_risk(risk):
-    colors = {
+    color_map = {
         "low": "\033[92m",       # Green
         "high": "\033[93m",      # Yellow
         "critical": "\033[91m"   # Red
     }
-    color = colors.get(risk, "")
+    color = color_map.get(risk, "")
     return f"{color}{risk}\033[0m" if color else risk
 
 def render_dashboard(graph):
@@ -18,8 +18,7 @@ def render_dashboard(graph):
         agent_type = agent.__class__.__name__
         status = getattr(agent, "status", "unknown")
         task = getattr(agent, "task", "—")
-        risk_raw = agent.vector_state.get("risk", "unknown")
-        risk = color_risk(risk_raw)
+        risk = color_risk(agent.vector_state.get("risk", "unknown"))
         last = agent.vector_state.get("last_action", "none")
         override = agent.vector_state.get("status", "")
 
@@ -43,8 +42,7 @@ def animate_motion(agent_id, routine):
         time.sleep(0.3)
 
     try:
-        with open("logs/motion.log", "a") as log:
-            for line in log_lines:
-                log.write(line + "\n")
-    except FileNotFoundError:
-        print("⚠️ motion.log not found — skipping log write.")
+        with open("logs/motion.log", "a", encoding="utf-8") as log:
+            log.write("\n".join(log_lines) + "\n")
+    except Exception as e:
+        print(f"⚠️ Failed to write to motion.log: {e}")
