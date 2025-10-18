@@ -11,7 +11,7 @@ else
 fi
 
 # Check for motion.log
-LOG_PATH="../logs/motion.log"
+LOG_PATH="logs/motion.log"
 if [ ! -f "$LOG_PATH" ]; then
   echo "⚠️ motion.log not found at $LOG_PATH"
   echo "➡️ Run main.py to generate motion history before visualizing."
