@@ -1,8 +1,11 @@
 import tkinter as tk
 import time
 import os
+import subprocess
 
+# Resolve motion log path relative to dashboard/
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
+MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 
 def replay_motion_log(canvas, lines):
     canvas.delete("all")
@@ -32,9 +35,17 @@ def load_motion_log():
     except Exception as e:
         return None, f"⚠️ Error reading motion.log: {e}"
 
-def load_and_replay(canvas):
+def launch_main():
+    try:
+        subprocess.Popen(["python3", MAIN_PATH])
+    except Exception as e:
+        print(f"Error launching main.py: {e}")
+
+def load_and_replay(canvas, launch_btn):
     lines, error = load_motion_log()
     canvas.delete("all")
+    launch_btn.pack_forget()
+
     if error:
         canvas.create_text(10, 20, anchor="nw", text=f"{error}\nFallback mode activated.", font=("Arial", 12), fill="red")
         sample = [
@@ -46,6 +57,8 @@ def load_and_replay(canvas):
         for line in sample:
             canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
             y += 25
+
+        launch_btn.pack(pady=10)
     else:
         replay_motion_log(canvas, lines)
 
@@ -57,8 +70,10 @@ def main():
     canvas = tk.Canvas(root, bg="white")
     canvas.pack(fill="both", expand=True)
 
-    replay_button = tk.Button(root, text="▶️ Replay Motions", command=lambda: load_and_replay(canvas))
-    replay_button.pack(pady=10)
+    launch_btn = tk.Button(root, text="🛠️ Run main.py to generate log", command=launch_main)
+
+    replay_btn = tk.Button(root, text="▶️ Replay Motions", command=lambda: load_and_replay(canvas, launch_btn))
+    replay_btn.pack(pady=10)
 
     root.mainloop()
 
