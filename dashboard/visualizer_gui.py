@@ -1,7 +1,8 @@
 import tkinter as tk
 import time
+import os
 
-LOG_PATH = "../logs/motion.log"
+LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 
 def replay_motion_log(canvas, lines):
     canvas.delete("all")
@@ -19,13 +20,34 @@ def replay_motion_log(canvas, lines):
             canvas.update()
             time.sleep(0.3)
 
-def load_and_replay(canvas):
+def load_motion_log():
+    if not os.path.exists(LOG_PATH):
+        return None, "⚠️ motion.log not found."
     try:
         with open(LOG_PATH, encoding="utf-8") as log:
             lines = log.readlines()
-            replay_motion_log(canvas, lines)
-    except FileNotFoundError:
-        canvas.create_text(10, 20, anchor="nw", text="⚠️ motion.log not found.", font=("Arial", 12))
+            if not lines:
+                return None, "⚠️ motion.log is empty."
+            return lines, None
+    except Exception as e:
+        return None, f"⚠️ Error reading motion.log: {e}"
+
+def load_and_replay(canvas):
+    lines, error = load_motion_log()
+    canvas.delete("all")
+    if error:
+        canvas.create_text(10, 20, anchor="nw", text=f"{error}\nFallback mode activated.", font=("Arial", 12), fill="red")
+        sample = [
+            "Frame 1: x=0, y=0, θ=0",
+            "Frame 2: x=1, y=0, θ=15°",
+            "Frame 3: x=2, y=1, θ=30°"
+        ]
+        y = 80
+        for line in sample:
+            canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
+            y += 25
+    else:
+        replay_motion_log(canvas, lines)
 
 def main():
     root = tk.Tk()
