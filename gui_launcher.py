@@ -8,6 +8,9 @@ from main import main  # assumes main.py is in the same folder
 # Ensure UTF-8 output for emoji-safe logging
 sys.stdout.reconfigure(encoding='utf-8')
 
+# Use emoji-safe font (Windows: Segoe UI Emoji)
+emoji_font = ("Segoe UI Emoji", 10)
+
 class TextRedirector(io.TextIOBase):
     def __init__(self, widget):
         self.widget = widget
@@ -50,25 +53,25 @@ root.title("🧠 Hector Launcher")
 root.geometry("600x500")
 root.resizable(False, False)
 
-title_label = tk.Label(root, text="🧠 Launch Hector Mesh", font=("Arial", 16))
+title_label = tk.Label(root, text="🧠 Launch Hector Mesh", font=("Segoe UI Emoji", 16))
 title_label.pack(pady=10)
 
 button_frame = tk.Frame(root)
 button_frame.pack(pady=5)
 
 launch_button = tk.Button(button_frame, text="▶️ Run main.py", command=launch_hector,
-                          font=("Arial", 12), bg="#4CAF50", fg="white", width=15)
+                          font=emoji_font, bg="#4CAF50", fg="white", width=15)
 launch_button.pack(side="left", padx=5)
 
 clear_button = tk.Button(button_frame, text="🧹 Clear Output", command=clear_output,
-                         font=("Arial", 12), bg="#f44336", fg="white", width=15)
+                         font=emoji_font, bg="#f44336", fg="white", width=15)
 clear_button.pack(side="left", padx=5)
 
-output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=("Consolas", 10),
+output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=emoji_font,
                                        width=70, height=20, state='disabled', bg="#f0f0f0")
 output_box.pack(pady=10)
 
-status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen", anchor="w")
+status_label = tk.Label(root, text="🧭 Ready", font=emoji_font, fg="darkgreen", anchor="w")
 status_label.pack(side="bottom", fill="x")
 
 root.mainloop()
