@@ -12,7 +12,7 @@ def color_risk(risk):
     return f"{color_map.get(risk, '')}{risk}\033[0m" if risk in color_map else risk
 
 def render_dashboard(graph):
-    print("\n🧠 Hector Override Dashboard")
+    print("\nHector Override Dashboard")
     print("-" * 40)
     for agent_id, agent in graph.agents.items():
         agent_type = agent.__class__.__name__
@@ -22,7 +22,7 @@ def render_dashboard(graph):
         last = agent.vector_state.get("last_action", "none")
         override = agent.vector_state.get("status", "")
 
-        print(f"🟢 {agent_id} ({agent_type})")
+        print(f"[{agent_id}] ({agent_type})")
         print(f"   Task: {task}")
         print(f"   Status: {status}")
         print(f"   Risk: {risk}")
@@ -31,11 +31,18 @@ def render_dashboard(graph):
             print(f"   Override Status: {override}")
         print("-" * 40)
 
+def sanitize(text):
+    return text.encode("ascii", "ignore").decode().strip()
+
 def animate_motion(agent_id, routine):
     frames = motions.get(routine, [])
-    print(f"\n🎭 {agent_id} performing {routine} routine...")
+    print(f"\n{agent_id} performing '{routine}' routine...")
+    sanitized_frames = []
+
     for frame in frames:
-        print(f"   {frame}")
+        clean_frame = sanitize(frame)
+        print(f"   {clean_frame}")
+        sanitized_frames.append(clean_frame)
         time.sleep(0.3)
 
-    log_motion(agent_id, routine, frames)
+    log_motion(agent_id, routine, sanitized_frames)
