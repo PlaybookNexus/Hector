@@ -1,3 +1,4 @@
+import os
 from graph.mission_graph import MissionGraph
 from graph.override import OverrideManager
 from graph.recovery import RecoveryManager
@@ -5,8 +6,7 @@ from agents.robot_arm_agent import RobotArmAgent
 from agents.humanoid_agent import HumanoidAgent
 from dashboard.ui import render_dashboard, animate_motion
 
-import os
-
+# Ensure logs directory exists
 if not os.path.exists("logs"):
     os.makedirs("logs")
 
@@ -22,21 +22,21 @@ def main():
     graph.register_agent(arm)
     graph.register_agent(humanoid)
 
-    # Assign tasks to arm
+    # Assign and dispatch tasks to arm
     graph.assign_task("arm-01", "pick")
     graph.dispatch_all()
 
     graph.assign_task("arm-01", "ballet")
     graph.dispatch_all()
-    animate_motion("arm-01", "ballet")  # ← synced with dispatch
+    animate_motion("arm-01", "ballet")  # Synced with dispatch
 
-    # Assign tasks to humanoid
+    # Assign and dispatch tasks to humanoid
     graph.assign_task("humanoid-01", "saluting")
     graph.dispatch_all()
 
     graph.assign_task("humanoid-01", "kata")
     graph.dispatch_all()
-    animate_motion("humanoid-01", "kata")  # ← synced with dispatch
+    animate_motion("humanoid-01", "kata")  # Synced with dispatch
 
     # Simulate risk escalation
     humanoid.vector_state["risk"] = "high"
