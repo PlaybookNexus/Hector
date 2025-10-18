@@ -3,6 +3,7 @@
 class CarAgent:
     def __init__(self, agent_id):
         self.agent_id = agent_id
+        self.id = agent_id  # ✅ Alias for graph compatibility
         self.vector_state = {
             "status": "parked",
             "risk": "low",
