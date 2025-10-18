@@ -21,3 +21,20 @@ fi
 # Launch the visualizer
 echo "🎭 Replaying motion history..."
 python3 dashboard/visualizer_gui.py
+
+# Create desktop shortcut (Linux GUI only)
+DESKTOP_PATH=~/Desktop/HectorVisualizer.desktop
+if [ -d ~/Desktop ]; then
+  echo "🖥️ Creating desktop shortcut..."
+  cat <<EOF > "$DESKTOP_PATH"
+[Desktop Entry]
+Name=Hector Visualizer
+Comment=Replay Hector's motion history
+Exec=bash -c 'cd ~/Hector && ./run_visualizer.sh'
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+EOF
+  chmod +x "$DESKTOP_PATH"
+  echo "✅ Shortcut created at $DESKTOP_PATH"
+fi
