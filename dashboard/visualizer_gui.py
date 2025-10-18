@@ -3,12 +3,10 @@ import time
 import os
 import sys
 import threading
-import subprocess
 from RecoveryManager import RecoveryManager
 from datetime import datetime
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
-MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 
 default_font = ("Arial", 12)
@@ -56,54 +54,6 @@ def load_motion_log():
             return lines, None
     except Exception as e:
         return None, f"Error reading motion.log: {e}"
-
-def run_main_and_stream(scrollable_frame, status_label):
-    for widget in scrollable_frame.winfo_children():
-        widget.destroy()
-    status_label.config(text="Running main.py — streaming output...")
-
-    def stream():
-        try:
-            process = subprocess.Popen(
-                ["python", MAIN_PATH],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                encoding="utf-8"
-            )
-
-            for i, line in enumerate(process.stdout):
-                line = line.strip()
-                if not line:
-                    continue
-                timestamp = time.strftime("%H:%M:%S")
-                if "performing" in line:
-                    label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=default_font_bold, fg="blue", bg="white", anchor="w", justify="left")
-                elif line.startswith("   "):
-                    label = tk.Label(scrollable_frame, text=line, font=default_font, fg="black", bg="white", anchor="w", justify="left")
-                else:
-                    label = tk.Label(scrollable_frame, text=line, font=default_font, fg="gray", bg="white", anchor="w", justify="left")
-                label.pack(anchor="w", padx=10, pady=2)
-                scrollable_frame.update()
-                scrollable_frame.master.yview_moveto(1.0)
-                status_label.config(text=f"Frame {i+1} — {timestamp}")
-                time.sleep(0.2)
-
-            process.wait()
-            status_label.config(text="main.py completed — loading motion log...")
-            time.sleep(0.5)
-            lines, error = load_motion_log()
-            if error:
-                status_label.config(text=f"{error} — fallback mode activated.")
-                RecoveryManager.trigger_fallback(error)
-            else:
-                status_label.config(text="Motion log loaded — replaying...")
-                replay_motion_log(scrollable_frame, status_label, lines)
-
-        except Exception as e:
-            status_label.config(text=f"Failed to run main.py: {e}")
-
-    threading.Thread(target=stream).start()
 
 def view_recovery_log():
     log_window = tk.Toplevel()
@@ -190,7 +140,6 @@ def main():
     time_entry.pack(side="left", padx=5)
 
     tk.Button(button_frame, text="Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry), font=default_font).pack(side="left", padx=5)
-    tk.Button(button_frame, text="Run main.py", command=lambda: run_main_and_stream(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="Clear", command=lambda: clear_canvas(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="View Recovery Log", command=view_recovery_log, font=default_font).pack(side="left", padx=5)
