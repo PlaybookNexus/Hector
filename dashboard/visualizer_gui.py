@@ -2,8 +2,8 @@ import tkinter as tk
 import time
 import os
 import subprocess
+from RecoveryManager import RecoveryManager
 
-# Resolve motion log path relative to dashboard/
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 
@@ -41,13 +41,16 @@ def launch_main():
     except Exception as e:
         print(f"Error launching main.py: {e}")
 
-def load_and_replay(canvas, launch_btn):
+def load_and_replay(canvas, launch_btn, cooldown_label):
     lines, error = load_motion_log()
     canvas.delete("all")
     launch_btn.pack_forget()
+    cooldown_label.pack_forget()
 
     if error:
+        RecoveryManager.trigger_fallback(error)
         canvas.create_text(10, 20, anchor="nw", text=f"{error}\nFallback mode activated.", font=("Arial", 12), fill="red")
+
         sample = [
             "Frame 1: x=0, y=0, θ=0",
             "Frame 2: x=1, y=0, θ=15°",
@@ -59,6 +62,10 @@ def load_and_replay(canvas, launch_btn):
             y += 25
 
         launch_btn.pack(pady=10)
+
+        if not RecoveryManager.cooldown_ready():
+            cooldown_label.config(text="⏱️ Cooldown active — please wait before retrying.")
+            cooldown_label.pack(pady=5)
     else:
         replay_motion_log(canvas, lines)
 
@@ -71,8 +78,9 @@ def main():
     canvas.pack(fill="both", expand=True)
 
     launch_btn = tk.Button(root, text="🛠️ Run main.py to generate log", command=launch_main)
+    cooldown_label = tk.Label(root, text="", font=("Arial", 10), fg="orange")
 
-    replay_btn = tk.Button(root, text="▶️ Replay Motions", command=lambda: load_and_replay(canvas, launch_btn))
+    replay_btn = tk.Button(root, text="▶️ Replay Motions", command=lambda: load_and_replay(canvas, launch_btn, cooldown_label))
     replay_btn.pack(pady=10)
 
     root.mainloop()
