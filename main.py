@@ -2,8 +2,6 @@ import os
 import sys
 import importlib
 
-sys.stdout.reconfigure(encoding='utf-8')
-
 from graph.mission_graph import MissionGraph
 from graph.override import OverrideManager
 from graph.recovery import RecoveryManager
