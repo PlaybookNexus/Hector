@@ -95,7 +95,7 @@ title_label.pack(pady=10)
 theatre_frame = tk.Frame(root, bg=DARK_BG)
 theatre_frame.pack(pady=5)
 
-theatre_label = tk.Label(theatre_frame, text="Mission Theatre:", font=FONT,
+theatre_label = tk.Label(theatre_frame, text="Choose Mission Type:", font=FONT,
                          bg=DARK_BG, fg=TEXT_COLOR)
 theatre_label.pack(side="left", padx=5)
 
