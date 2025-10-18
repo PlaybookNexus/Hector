@@ -10,24 +10,23 @@ LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 
-def replay_motion_log(canvas, status_label, lines):
-    canvas.delete("all")
-    y = 20
+def replay_motion_log(scrollable_frame, status_label, lines):
+    for widget in scrollable_frame.winfo_children():
+        widget.destroy()
+
     for i, line in enumerate(lines):
         line = line.strip()
         if not line:
             continue
         timestamp = time.strftime("%H:%M:%S")
         if "performing" in line:
-            canvas.create_text(10, y, anchor="nw", text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fill="blue")
-            y += 30
+            label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fg="blue", bg="white", anchor="w", justify="left")
         elif line.startswith("   "):
-            canvas.create_text(30, y, anchor="nw", text=f"{line}", font=("Arial", 12), fill="black")
-            y += 25
+            label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="black", bg="white", anchor="w", justify="left")
         else:
-            canvas.create_text(30, y, anchor="nw", text=f"{line}", font=("Arial", 12), fill="gray")
-            y += 25
-        canvas.update()
+            label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
+        label.pack(anchor="w", padx=10, pady=2)
+        scrollable_frame.update()
         status_label.config(text=f"✅ Replaying frame {i+1} of {len(lines)} — {timestamp}")
         time.sleep(0.2)
 
@@ -43,8 +42,9 @@ def load_motion_log():
     except Exception as e:
         return None, f"⚠️ Error reading motion.log: {e}"
 
-def run_main_and_stream(canvas, status_label):
-    canvas.delete("all")
+def run_main_and_stream(scrollable_frame, status_label):
+    for widget in scrollable_frame.winfo_children():
+        widget.destroy()
     status_label.config(text="🛠️ Running main.py — streaming output...")
 
     def stream():
@@ -57,22 +57,19 @@ def run_main_and_stream(canvas, status_label):
                 encoding="utf-8"
             )
 
-            y = 20
             for i, line in enumerate(process.stdout):
                 line = line.strip()
                 if not line:
                     continue
                 timestamp = time.strftime("%H:%M:%S")
                 if "performing" in line:
-                    canvas.create_text(10, y, anchor="nw", text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fill="blue")
-                    y += 30
+                    label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fg="blue", bg="white", anchor="w", justify="left")
                 elif line.startswith("   "):
-                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="black")
-                    y += 25
+                    label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="black", bg="white", anchor="w", justify="left")
                 else:
-                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
-                    y += 25
-                canvas.update()
+                    label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
+                label.pack(anchor="w", padx=10, pady=2)
+                scrollable_frame.update()
                 status_label.config(text=f"📡 Frame {i+1} — {timestamp}")
                 time.sleep(0.2)
 
@@ -85,7 +82,7 @@ def run_main_and_stream(canvas, status_label):
                 RecoveryManager.trigger_fallback(error)
             else:
                 status_label.config(text="✅ Motion log loaded — replaying...")
-                replay_motion_log(canvas, status_label, lines)
+                replay_motion_log(scrollable_frame, status_label, lines)
 
         except Exception as e:
             status_label.config(text=f"❌ Failed to run main.py: {e}")
@@ -105,13 +102,15 @@ def view_recovery_log():
     except FileNotFoundError:
         text.insert("1.0", "Recovery log not found.")
 
-def clear_canvas(canvas, status_label):
-    canvas.delete("all")
+def clear_canvas(scrollable_frame, status_label):
+    for widget in scrollable_frame.winfo_children():
+        widget.destroy()
     status_label.config(text="🧹 Canvas cleared.")
 
-def load_and_replay(canvas, status_label):
+def load_and_replay(scrollable_frame, status_label):
     lines, error = load_motion_log()
-    canvas.delete("all")
+    for widget in scrollable_frame.winfo_children():
+        widget.destroy()
 
     if error:
         RecoveryManager.trigger_fallback(error)
@@ -121,15 +120,14 @@ def load_and_replay(canvas, status_label):
             "Frame 2: x=1, y=0, θ=15°",
             "Frame 3: x=2, y=1, θ=30°"
         ]
-        y = 80
         for line in sample:
-            canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
-            y += 25
+            label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
+            label.pack(anchor="w", padx=10, pady=2)
         if not RecoveryManager.cooldown_ready():
             status_label.config(text="⏱️ Cooldown active — please wait before retrying.")
     else:
         status_label.config(text="✅ Motion log loaded — replaying...")
-        replay_motion_log(canvas, status_label, lines)
+        replay_motion_log(scrollable_frame, status_label, lines)
 
 def main():
     root = tk.Tk()
@@ -139,12 +137,17 @@ def main():
     main_frame = tk.Frame(root)
     main_frame.pack(fill="both", expand=True)
 
-    canvas_frame = tk.Frame(main_frame)
-    canvas_frame.pack(fill="both", expand=True)
-
-    canvas = tk.Canvas(canvas_frame, bg="white")
-    scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+    canvas = tk.Canvas(main_frame, bg="white")
+    scrollbar = tk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=scrollbar.set)
+
+    scrollable_frame = tk.Frame(canvas, bg="white")
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
@@ -155,10 +158,10 @@ def main():
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10)
 
-    tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: run_main_and_stream(canvas, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(canvas, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(scrollable_frame, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: run_main_and_stream(scrollable_frame, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(scrollable_frame, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(scrollable_frame, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
 
     root.mainloop()
