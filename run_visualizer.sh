@@ -5,15 +5,16 @@ echo "🧠 Launching Hector Visualizer..."
 # Get absolute path to Hector root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Activate virtual environment if it exists
-if [ -d "$SCRIPT_DIR/venv" ]; then
-  source "$SCRIPT_DIR/venv/bin/activate"
+# Activate virtual environment if present
+VENV_PATH="$SCRIPT_DIR/venv"
+if [ -d "$VENV_PATH" ]; then
+  source "$VENV_PATH/bin/activate"
   echo "✅ Virtual environment activated."
 else
-  echo "⚠️ No virtual environment found. Continuing without it..."
+  echo "⚠️ No virtual environment found — continuing without it..."
 fi
 
-# Check for motion.log using absolute path
+# Check for motion.log
 LOG_PATH="$SCRIPT_DIR/logs/motion.log"
 echo "🔍 Checking for motion log at: $LOG_PATH"
 
