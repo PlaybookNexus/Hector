@@ -190,9 +190,9 @@ def main():
 
     tk.Button(button_frame, text="▶ Play", command=lambda: play_motion(scrollable_frame, status_label),
               font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
-    tk.Button(button_frame, text="⏸ Pause", command=lambda: pause_motion(status_label),
+    tk.Button(button_frame, text="Pause", command=lambda: pause_motion(status_label),
               font=FONT, bg=WARNING_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🗑 Delete Log", command=lambda: confirm_delete_log(status_label, scrollable_frame),
+    tk.Button(button_frame, text="Delete Log", command=lambda: confirm_delete_log(status_label, scrollable_frame),
               font=FONT, bg=CRITICAL_COLOR, fg="white", width=15).pack(side="left", padx=5)
     tk.Button(button_frame, text="View Recovery Log", command=view_recovery_log,
               font=FONT, bg="#2196F3", fg=DARK_BG, width=15).pack(side="left", padx=5)
