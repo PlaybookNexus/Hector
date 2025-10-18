@@ -6,7 +6,7 @@ import sys
 import io
 import os
 
-# Optional: UTF-8 output for broader character support
+# Reconfigure stdout before any redirection
 sys.stdout.reconfigure(encoding='utf-8')
 
 default_font = ("Arial", 10)
@@ -24,7 +24,6 @@ class TextRedirector(io.TextIOBase):
 def launch_hector():
     def run():
         try:
-            # Set theatre environment variable at launch time
             os.environ["HECTOR_THEATRE"] = selected_theatre.get()
 
             status_label.config(text="Launching Hector mesh...")
