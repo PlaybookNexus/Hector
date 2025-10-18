@@ -2,7 +2,7 @@
 
 echo "🧠 Launching Hector Visualizer..."
 
-# Activate virtual environment if it exists
+# Activate virtual environment if it exists.
 if [ -d "venv" ]; then
   source venv/bin/activate
   echo "✅ Virtual environment activated."
