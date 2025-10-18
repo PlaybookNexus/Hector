@@ -1,7 +1,6 @@
 import tkinter as tk
 import time
 import os
-import sys
 import threading
 from RecoveryManager import RecoveryManager
 from datetime import datetime
@@ -73,19 +72,20 @@ def clear_canvas(scrollable_frame, status_label):
         widget.destroy()
     status_label.config(text="Canvas cleared.")
 
-def load_and_replay(scrollable_frame, status_label, time_entry):
+def load_and_replay(scrollable_frame, status_label, time_entry, filter_var):
     lines, error = load_motion_log()
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
 
     start_time = None
-    time_str = time_entry.get().strip()
-    if time_str:
-        try:
-            start_time = datetime.strptime(time_str, "%H:%M:%S")
-        except ValueError:
-            status_label.config(text="Invalid time format. Use HH:MM:SS.")
-            return
+    if filter_var.get() == "Filter From Time":
+        time_str = time_entry.get().strip()
+        if time_str:
+            try:
+                start_time = datetime.strptime(time_str, "%H:%M:%S")
+            except ValueError:
+                status_label.config(text="Invalid time format. Use HH:MM:SS.")
+                return
 
     if error:
         RecoveryManager.trigger_fallback(error)
@@ -133,14 +133,19 @@ def main():
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10)
 
+    filter_var = tk.StringVar(value="Replay All")
+    filter_menu = tk.OptionMenu(button_frame, filter_var, "Replay All", "Filter From Time")
+    filter_menu.config(font=default_font)
+    filter_menu.pack(side="left", padx=5)
+
     time_label = tk.Label(button_frame, text="Start Time (HH:MM:SS):", font=default_font)
     time_label.pack(side="left", padx=5)
 
     time_entry = tk.Entry(button_frame, font=default_font, width=10)
     time_entry.pack(side="left", padx=5)
 
-    tk.Button(button_frame, text="Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry), font=default_font).pack(side="left", padx=5)
-    tk.Button(button_frame, text="Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry), font=default_font).pack(side="left", padx=5)
+    tk.Button(button_frame, text="Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry, filter_var), font=default_font).pack(side="left", padx=5)
+    tk.Button(button_frame, text="Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry, filter_var), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="Clear", command=lambda: clear_canvas(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="View Recovery Log", command=view_recovery_log, font=default_font).pack(side="left", padx=5)
 
