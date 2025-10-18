@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import threading
+import subprocess
 import sys
 import io
 from main import main  # assumes main.py is in the same folder
@@ -46,6 +47,14 @@ def clear_output():
     output_box.configure(state='disabled')
     status_label.config(text="Output cleared.")
 
+def launch_visualizer():
+    try:
+        subprocess.Popen(["python", "dashboard/visualizer_gui.py"])
+        status_label.config(text="Visualizer launched.")
+    except Exception as e:
+        status_label.config(text="Failed to launch visualizer.")
+        messagebox.showerror("Error", f"Could not launch visualizer:\n{e}")
+
 # GUI setup
 root = tk.Tk()
 root.title("Hector Launcher")
@@ -65,6 +74,10 @@ launch_button.pack(side="left", padx=5)
 clear_button = tk.Button(button_frame, text="Clear Output", command=clear_output,
                          font=default_font, bg="#f44336", fg="white", width=15)
 clear_button.pack(side="left", padx=5)
+
+view_log_button = tk.Button(button_frame, text="View Log", command=launch_visualizer,
+                            font=default_font, bg="#2196F3", fg="white", width=15)
+view_log_button.pack(side="left", padx=5)
 
 output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=default_font,
                                        width=70, height=20, state='disabled', bg="#f0f0f0")
