@@ -18,6 +18,14 @@ class TextRedirector(io.TextIOBase):
         self.widget.see(tk.END)
         self.widget.configure(state='disabled')
 
+def get_version_info():
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
+        date = subprocess.check_output(["git", "log", "-1", "--format=%cd", "--date=short"], text=True).strip()
+        return f"Version: {commit} • Updated: {date}"
+    except Exception:
+        return "Version info unavailable"
+
 def launch_hector():
     def run():
         try:
@@ -72,6 +80,7 @@ def run_git_pull():
             output_box.configure(state='disabled')
 
             status_label.config(text="Update complete.", fg=TEXT_COLOR)
+            version_label.config(text=get_version_info())
         except Exception as e:
             status_label.config(text="Git update failed.", fg=CRITICAL_COLOR)
             messagebox.showerror("Git Error", f"Failed to pull updates:\n{e}")
@@ -90,6 +99,10 @@ selected_theatre = tk.StringVar(value="search_and_rescue")
 title_label = tk.Label(root, text="Launch Hector Mesh", font=("Segoe UI", 16, "bold"),
                        bg=DARK_BG, fg=ACCENT_COLOR)
 title_label.pack(pady=10)
+
+version_label = tk.Label(root, text=get_version_info(), font=("Segoe UI", 10),
+                         bg=DARK_BG, fg=TEXT_COLOR)
+version_label.pack(pady=(0, 10))
 
 # Theatre selector
 theatre_frame = tk.Frame(root, bg=DARK_BG)
