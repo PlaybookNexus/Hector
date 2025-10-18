@@ -1,7 +1,7 @@
 import tkinter as tk
 import time
 
-LOG_PATH = "logs/motion.log"
+LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 
 def replay_motion_log(canvas, lines):
     canvas.delete("all")
