@@ -5,12 +5,15 @@ import sys
 import threading
 import subprocess
 from RecoveryManager import RecoveryManager
+from datetime import datetime
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 
-def replay_motion_log(scrollable_frame, status_label, lines):
+emoji_font = ("Segoe UI Emoji", 10)
+
+def replay_motion_log(scrollable_frame, status_label, lines, start_time=None):
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
 
@@ -18,6 +21,17 @@ def replay_motion_log(scrollable_frame, status_label, lines):
         line = line.strip()
         if not line:
             continue
+
+        # Optional time filtering
+        if start_time:
+            try:
+                log_time = line.split()[0]
+                log_dt = datetime.strptime(log_time, "%H:%M:%S")
+                if log_dt < start_time:
+                    continue
+            except Exception:
+                pass  # Skip malformed lines
+
         timestamp = time.strftime("%H:%M:%S")
         if "performing" in line:
             label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fg="blue", bg="white", anchor="w", justify="left")
@@ -27,6 +41,7 @@ def replay_motion_log(scrollable_frame, status_label, lines):
             label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
         label.pack(anchor="w", padx=10, pady=2)
         scrollable_frame.update()
+        scrollable_frame.master.yview_moveto(1.0)
         status_label.config(text=f"✅ Replaying frame {i+1} of {len(lines)} — {timestamp}")
         time.sleep(0.2)
 
@@ -70,6 +85,7 @@ def run_main_and_stream(scrollable_frame, status_label):
                     label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
                 label.pack(anchor="w", padx=10, pady=2)
                 scrollable_frame.update()
+                scrollable_frame.master.yview_moveto(1.0)
                 status_label.config(text=f"📡 Frame {i+1} — {timestamp}")
                 time.sleep(0.2)
 
@@ -93,7 +109,7 @@ def view_recovery_log():
     log_window = tk.Toplevel()
     log_window.title("📜 Recovery Log")
     log_window.geometry("500x300")
-    text = tk.Text(log_window, wrap="word")
+    text = tk.Text(log_window, wrap="word", font=emoji_font)
     text.pack(fill="both", expand=True)
     try:
         with open(LOG_VIEWER_PATH, "r", encoding="utf-8") as f:
@@ -107,10 +123,19 @@ def clear_canvas(scrollable_frame, status_label):
         widget.destroy()
     status_label.config(text="🧹 Canvas cleared.")
 
-def load_and_replay(scrollable_frame, status_label):
+def load_and_replay(scrollable_frame, status_label, time_entry):
     lines, error = load_motion_log()
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
+
+    start_time = None
+    time_str = time_entry.get().strip()
+    if time_str:
+        try:
+            start_time = datetime.strptime(time_str, "%H:%M:%S")
+        except ValueError:
+            status_label.config(text="⚠️ Invalid time format. Use HH:MM:SS.")
+            return
 
     if error:
         RecoveryManager.trigger_fallback(error)
@@ -127,12 +152,12 @@ def load_and_replay(scrollable_frame, status_label):
             status_label.config(text="⏱️ Cooldown active — please wait before retrying.")
     else:
         status_label.config(text="✅ Motion log loaded — replaying...")
-        replay_motion_log(scrollable_frame, status_label, lines)
+        replay_motion_log(scrollable_frame, status_label, lines, start_time)
 
 def main():
     root = tk.Tk()
     root.title("🧠 Hector Visualizer")
-    root.geometry("800x600")
+    root.geometry("850x650")
 
     main_frame = tk.Frame(root)
     main_frame.pack(fill="both", expand=True)
@@ -152,19 +177,19 @@ def main():
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen", anchor="w")
+    status_label = tk.Label(root, text="🧭 Ready", font=emoji_font, fg="darkgreen", anchor="w")
     status_label.pack(side="bottom", fill="x")
 
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10)
 
-    tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(scrollable_frame, status_label)).pack(side="left", padx=5)
+    time_label = tk.Label(button_frame, text="⏱️ Start Time (HH:MM:SS):", font=emoji_font)
+    time_label.pack(side="left", padx=5)
+
+    time_entry = tk.Entry(button_frame, font=emoji_font, width=10)
+    time_entry.pack(side="left", padx=5)
+
+    tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: run_main_and_stream(scrollable_frame, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(scrollable_frame, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(scrollable_frame, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
-
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+    tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(scrollable_frame, status_label)).pack(side="left
