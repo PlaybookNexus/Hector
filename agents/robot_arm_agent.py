@@ -1,20 +1,17 @@
+# agents/robot_arm_agent.py
+
 import random
 import time
+from agents.base_agent import BaseAgent
 
-class RobotArmAgent:
-    def __init__(self, id, base_location=(0, 0)):
-        self.id = id
+class RobotArmAgent(BaseAgent):
+    def __init__(self, agent_id, base_location=(0, 0)):
+        super().__init__(agent_id)
         self.base_location = base_location
         self.joint_angles = [0.0 for _ in range(6)]
         self.gripper_open = True
-        self.task = None
         self.holding_object = False
-        self.status = "idle"
-        self.vector_state = {
-            "reach_zone": (1.0, 1.0),
-            "risk": "low",
-            "last_action": None
-        }
+        self.vector_state["reach_zone"] = (1.0, 1.0)
 
     def update(self):
         if self.task == "ballet":
@@ -25,10 +22,6 @@ class RobotArmAgent:
         else:
             self.status = "idle"
             self.vector_state["last_action"] = "waiting"
-
-    def assign_task(self, task):
-        self.task = task
-        self.status = "assigned"
 
     def execute_task(self):
         if self.task == "pick":
@@ -53,27 +46,23 @@ class RobotArmAgent:
         self.status = "dancing"
         self.vector_state["last_action"] = "ballet start"
 
-        # Graceful base sweep
         for pos in range(90, 121, 5):
             self.joint_angles[0] = pos
             self.joint_angles[3] = pos
             self.log_motion("base sweep")
             time.sleep(0.02)
 
-        # Arm extension
         for pos in range(90, 44, -5):
             self.joint_angles[1] = pos
             self.joint_angles[2] = 180 - pos
             self.log_motion("arm extension")
             time.sleep(0.02)
 
-        # Wrist flourish
         for pos in range(90, 121, 5):
             self.joint_angles[3] = pos
             self.log_motion("wrist flourish")
             time.sleep(0.015)
 
-        # Gentle grip
         for pos in range(85, 29, -5):
             self.joint_angles[4] = pos
             self.log_motion("gentle grip")
@@ -83,20 +72,12 @@ class RobotArmAgent:
         self.status = "idle"
 
     def log_motion(self, step):
-        print(f"[{self.id}] Motion: {step}")
+        print(f"[{self.agent_id}] Motion: {step}")
 
     def abort(self):
-        print(f"[Override] Aborting tasks for {self.id}")
+        print(f"[Override] Aborting tasks for {self.agent_id}")
         self.vector_state["status"] = "aborted"
         self.vector_state["task"] = None
 
-        # Log override event
         with open("logs/override.log", "a") as log:
-            log.write(f"{time.time()} - {self.id} aborted\n")
-
-    def reset(self):
-        print(f"[Recovery] Resetting {self.id}")
-        self.status = "idle"
-        self.task = None
-        self.vector_state["status"] = "recovered"
-    
+            log.write(f"{time.time()} - {self.agent_id} aborted\n")

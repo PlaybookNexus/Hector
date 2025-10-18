@@ -1,15 +1,13 @@
-import time
+# agents/humanoid_agent.py
 
-class HumanoidAgent:
-    def __init__(self, id, stance="neutral"):
-        self.id = id
+import time
+from agents.base_agent import BaseAgent
+
+class HumanoidAgent(BaseAgent):
+    def __init__(self, agent_id, stance="neutral"):
+        super().__init__(agent_id)
         self.stance = stance
-        self.status = "idle"
-        self.vector_state = {
-            "pose": "standing",
-            "risk": "low",
-            "last_action": None
-        }
+        self.vector_state["pose"] = "standing"
 
     def update(self):
         if self.status == "saluting":
@@ -23,37 +21,33 @@ class HumanoidAgent:
         else:
             self.vector_state["last_action"] = "waiting"
 
-    def assign_task(self, task):
-        self.status = task
-        self.vector_state["last_action"] = f"task assigned: {task}"
-
     def salute(self):
-        print(f"[{self.id}] Saluting contributor...")
+        print(f"[{self.agent_id}] Saluting contributor...")
         time.sleep(0.5)
         self.vector_state["pose"] = "salute"
         self.vector_state["last_action"] = "salute complete"
         self.status = "idle"
 
     def perform_kata(self):
-        print(f"[{self.id}] Performing kata routine...")
+        print(f"[{self.agent_id}] Performing kata routine...")
         for move in ["guard", "strike", "block", "bow"]:
-            print(f"[{self.id}] Move: {move}")
+            print(f"[{self.agent_id}] Move: {move}")
             time.sleep(0.3)
         self.vector_state["pose"] = "kata stance"
         self.vector_state["last_action"] = "kata complete"
         self.status = "idle"
 
     def intercept(self):
-        print(f"[{self.id}] Intercepting override...")
+        print(f"[{self.agent_id}] Intercepting override...")
         self.vector_state["risk"] = "high"
         self.vector_state["pose"] = "intercept"
         self.vector_state["last_action"] = "override intercepted"
         self.status = "idle"
 
     def tribute(self):
-        print(f"[{self.id}] Performing ceremonial tribute...")
+        print(f"[{self.agent_id}] Performing ceremonial tribute...")
         for motion in ["kneel", "extend arms", "nod"]:
-            print(f"[{self.id}] Motion: {motion}")
+            print(f"[{self.agent_id}] Motion: {motion}")
             time.sleep(0.4)
         self.vector_state["pose"] = "tribute"
         self.vector_state["last_action"] = "tribute complete"
