@@ -10,7 +10,6 @@ import os
 sys.stdout.reconfigure(encoding='utf-8')
 
 default_font = ("Arial", 10)
-selected_theatre = tk.StringVar(value="search_and_rescue")  # Default theatre
 
 class TextRedirector(io.TextIOBase):
     def __init__(self, widget):
@@ -68,6 +67,8 @@ root = tk.Tk()
 root.title("Hector Launcher")
 root.geometry("600x540")
 root.resizable(False, False)
+
+selected_theatre = tk.StringVar(value="search_and_rescue")  # Default theatre
 
 title_label = tk.Label(root, text="Launch Hector Mesh", font=("Arial", 16))
 title_label.pack(pady=10)
