@@ -12,7 +12,7 @@ fi
 
 # Resolve motion.log path relative to script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_PATH="$SCRIPT_DIR/logs/motion.log"
+LOG_PATH="../logs/motion.log"
 
 # Check for motion.log
 if [ ! -f "$LOG_PATH" ]; then
