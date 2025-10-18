@@ -73,8 +73,8 @@ def load_and_replay(scrollable_frame, status_label):
         status_label.config(text=f"{error} — Fallback mode activated.")
         sample = [
             "Frame 1: x=0, y=0, θ=0",
-            "Frame 2: x=1, y=0, θ=15°",
-            "Frame 3: x=2, y=1, θ=30°"
+            "Frame 2: x=1, y=0, θ=15 degrees",
+            "Frame 3: x=2, y=1, θ=30 degrees"
         ]
         for line in sample:
             label = tk.Label(scrollable_frame, text=line, font=default_font, fg="gray", bg="white", anchor="w", justify="left")
