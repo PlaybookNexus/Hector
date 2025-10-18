@@ -6,22 +6,25 @@ from RecoveryManager import RecoveryManager
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
+LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 
-def replay_motion_log(canvas, lines):
+def replay_motion_log(canvas, status_label, lines):
     canvas.delete("all")
     y = 20
-    for line in lines:
+    for i, line in enumerate(lines):
         line = line.strip()
         if not line:
             continue
+        timestamp = time.strftime("%H:%M:%S")
         if "performing" in line:
-            canvas.create_text(10, y, anchor="nw", text=f"\n{line}", font=("Arial", 12, "bold"))
+            canvas.create_text(10, y, anchor="nw", text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fill="blue")
             y += 30
         elif line.startswith("   "):
-            canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12))
+            canvas.create_text(30, y, anchor="nw", text=f"{line}", font=("Arial", 12), fill="black")
             y += 25
             canvas.update()
             time.sleep(0.3)
+        status_label.config(text=f"✅ Replaying frame {i+1} of {len(lines)} — {timestamp}")
 
 def load_motion_log():
     if not os.path.exists(LOG_PATH):
@@ -41,16 +44,30 @@ def launch_main():
     except Exception as e:
         print(f"Error launching main.py: {e}")
 
-def load_and_replay(canvas, launch_btn, cooldown_label):
+def view_recovery_log():
+    log_window = tk.Toplevel()
+    log_window.title("📜 Recovery Log")
+    log_window.geometry("500x300")
+    text = tk.Text(log_window, wrap="word")
+    text.pack(fill="both", expand=True)
+    try:
+        with open(LOG_VIEWER_PATH, "r") as f:
+            content = f.read()
+            text.insert("1.0", content if content else "No recovery events logged yet.")
+    except FileNotFoundError:
+        text.insert("1.0", "Recovery log not found.")
+
+def clear_canvas(canvas, status_label):
+    canvas.delete("all")
+    status_label.config(text="🧹 Canvas cleared.")
+
+def load_and_replay(canvas, status_label):
     lines, error = load_motion_log()
     canvas.delete("all")
-    launch_btn.pack_forget()
-    cooldown_label.pack_forget()
 
     if error:
         RecoveryManager.trigger_fallback(error)
-        canvas.create_text(10, 20, anchor="nw", text=f"{error}\nFallback mode activated.", font=("Arial", 12), fill="red")
-
+        status_label.config(text=f"{error} — Fallback mode activated.")
         sample = [
             "Frame 1: x=0, y=0, θ=0",
             "Frame 2: x=1, y=0, θ=15°",
@@ -60,28 +77,31 @@ def load_and_replay(canvas, launch_btn, cooldown_label):
         for line in sample:
             canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
             y += 25
-
-        launch_btn.pack(pady=10)
-
         if not RecoveryManager.cooldown_ready():
-            cooldown_label.config(text="⏱️ Cooldown active — please wait before retrying.")
-            cooldown_label.pack(pady=5)
+            status_label.config(text="⏱️ Cooldown active — please wait before retrying.")
     else:
-        replay_motion_log(canvas, lines)
+        status_label.config(text="✅ Motion log loaded — replaying...")
+        replay_motion_log(canvas, status_label, lines)
 
 def main():
     root = tk.Tk()
     root.title("🧠 Hector Visualizer")
-    root.geometry("600x400")
+    root.geometry("700x500")
 
     canvas = tk.Canvas(root, bg="white")
     canvas.pack(fill="both", expand=True)
 
-    launch_btn = tk.Button(root, text="🛠️ Run main.py to generate log", command=launch_main)
-    cooldown_label = tk.Label(root, text="", font=("Arial", 10), fg="orange")
+    status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen")
+    status_label.pack(side="bottom", fill="x")
 
-    replay_btn = tk.Button(root, text="▶️ Replay Motions", command=lambda: load_and_replay(canvas, launch_btn, cooldown_label))
-    replay_btn.pack(pady=10)
+    button_frame = tk.Frame(root)
+    button_frame.pack(pady=10)
+
+    tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🛠️ Run main.py", command=launch_main).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(canvas, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
 
     root.mainloop()
 
