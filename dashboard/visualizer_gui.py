@@ -131,6 +131,34 @@ def load_and_replay(scrollable_frame, status_label):
         status_label.config(text="Motion log loaded — replaying...", fg=ACCENT_COLOR)
         replay_motion_log(scrollable_frame, status_label, lines)
 
+def confirm_delete_log(status_label, scrollable_frame):
+    confirm_window = tk.Toplevel()
+    confirm_window.title("Confirm Log Deletion")
+    confirm_window.geometry("400x180")
+    confirm_window.configure(bg=DARK_BG)
+
+    tk.Label(confirm_window, text="Delete motion.log?", font=("Segoe UI", 14, "bold"),
+             bg=DARK_BG, fg=CRITICAL_COLOR).pack(pady=10)
+
+    tk.Label(confirm_window, text="This will permanently remove the motion log.\nAre you sure?",
+             font=FONT, bg=DARK_BG, fg=TEXT_COLOR).pack(pady=5)
+
+    button_frame = tk.Frame(confirm_window, bg=DARK_BG)
+    button_frame.pack(pady=10)
+
+    def confirm():
+        delete_motion_log(status_label, scrollable_frame)
+        confirm_window.destroy()
+
+    def cancel():
+        status_label.config(text="Deletion cancelled.", fg=WARNING_COLOR)
+        confirm_window.destroy()
+
+    tk.Button(button_frame, text="Delete", command=confirm,
+              font=FONT, bg=CRITICAL_COLOR, fg="white", width=10).pack(side="left", padx=10)
+    tk.Button(button_frame, text="Cancel", command=cancel,
+              font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=10).pack(side="left", padx=10)
+
 def main():
     root = tk.Tk()
     root.title("Hector Visualizer")
@@ -164,7 +192,7 @@ def main():
               font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
     tk.Button(button_frame, text="⏸ Pause", command=lambda: pause_motion(status_label),
               font=FONT, bg=WARNING_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🗑 Delete Log", command=lambda: delete_motion_log(status_label, scrollable_frame),
+    tk.Button(button_frame, text="🗑 Delete Log", command=lambda: confirm_delete_log(status_label, scrollable_frame),
               font=FONT, bg=CRITICAL_COLOR, fg="white", width=15).pack(side="left", padx=5)
     tk.Button(button_frame, text="View Recovery Log", command=view_recovery_log,
               font=FONT, bg="#2196F3", fg=DARK_BG, width=15).pack(side="left", padx=5)
