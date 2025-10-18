@@ -2,7 +2,7 @@
 
 echo "🧠 Launching Hector Visualizer..."
 
-# Resolve absolute path to Hector root
+# Get absolute path to Hector root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Activate virtual environment if present
@@ -16,7 +16,7 @@ fi
 
 # Check for motion.log
 LOG_PATH="$SCRIPT_DIR/logs/motion.log"
-echo "🔍 Looking for motion log at: $LOG_PATH"
+echo "🔍 Checking for motion log at: $LOG_PATH"
 if [ ! -f "$LOG_PATH" ]; then
   echo "⚠️ motion.log not found."
   echo "➡️ Run main.py to generate motion history before visualizing."
