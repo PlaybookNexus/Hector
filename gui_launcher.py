@@ -108,7 +108,7 @@ theatre_dropdown.pack(side="left", padx=5)
 button_frame = tk.Frame(root, bg=DARK_BG)
 button_frame.pack(pady=5)
 
-launch_button = tk.Button(button_frame, text="Run main.py", command=launch_hector,
+launch_button = tk.Button(button_frame, text="Start Mission", command=launch_hector,
                           font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=15)
 launch_button.pack(side="left", padx=5)
 
