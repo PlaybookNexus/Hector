@@ -120,7 +120,7 @@ view_log_button = tk.Button(button_frame, text="View Log", command=launch_visual
                             font=FONT, bg="#2196F3", fg=DARK_BG, width=15)
 view_log_button.pack(side="left", padx=5)
 
-update_button = tk.Button(button_frame, text="Update (git pull)", command=run_git_pull,
+update_button = tk.Button(button_frame, text="Update Hector", command=run_git_pull,
                           font=FONT, bg="#9C27B0", fg="white", width=15)
 update_button.pack(side="left", padx=5)
 
