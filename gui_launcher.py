@@ -81,7 +81,7 @@ def run_git_pull():
 # GUI setup
 root = tk.Tk()
 root.title("Hector Launcher")
-root.geometry("600x540")
+root.geometry("720x540")
 root.resizable(False, False)
 root.configure(bg=DARK_BG)
 
