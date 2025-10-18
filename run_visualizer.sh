@@ -11,13 +11,14 @@ if [ -d "$VENV_PATH" ]; then
   source "$VENV_PATH/bin/activate"
   echo "✅ Virtual environment activated."
 else
-  echo "⚠️ No virtual environment found at $VENV_PATH — continuing without it..."
+  echo "⚠️ No virtual environment found — continuing without it..."
 fi
 
 # Check for motion.log
 LOG_PATH="$SCRIPT_DIR/logs/motion.log"
+echo "🔍 Looking for motion log at: $LOG_PATH"
 if [ ! -f "$LOG_PATH" ]; then
-  echo "⚠️ motion.log not found at $LOG_PATH"
+  echo "⚠️ motion.log not found."
   echo "➡️ Run main.py to generate motion history before visualizing."
   exit 1
 fi
