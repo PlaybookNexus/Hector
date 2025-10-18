@@ -11,7 +11,7 @@ LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 default_font = ("Arial", 12)
 default_font_bold = ("Arial", 12, "bold")
 
-def replay_motion_log(scrollable_frame, status_label, lines, start_time=None):
+def replay_motion_log(scrollable_frame, status_label, lines):
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
 
@@ -19,15 +19,6 @@ def replay_motion_log(scrollable_frame, status_label, lines, start_time=None):
         line = line.strip()
         if not line:
             continue
-
-        if start_time:
-            try:
-                log_time = line.split()[0]
-                log_dt = datetime.strptime(log_time, "%H:%M:%S")
-                if log_dt < start_time:
-                    continue
-            except Exception:
-                pass
 
         timestamp = time.strftime("%H:%M:%S")
         if "performing" in line:
@@ -72,20 +63,10 @@ def clear_canvas(scrollable_frame, status_label):
         widget.destroy()
     status_label.config(text="Canvas cleared.")
 
-def load_and_replay(scrollable_frame, status_label, time_entry, filter_var):
+def load_and_replay(scrollable_frame, status_label):
     lines, error = load_motion_log()
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
-
-    start_time = None
-    if filter_var.get() == "Filter From Time":
-        time_str = time_entry.get().strip()
-        if time_str:
-            try:
-                start_time = datetime.strptime(time_str, "%H:%M:%S")
-            except ValueError:
-                status_label.config(text="Invalid time format. Use HH:MM:SS.")
-                return
 
     if error:
         RecoveryManager.trigger_fallback(error)
@@ -102,7 +83,7 @@ def load_and_replay(scrollable_frame, status_label, time_entry, filter_var):
             status_label.config(text="Cooldown active — please wait before retrying.")
     else:
         status_label.config(text="Motion log loaded — replaying...")
-        replay_motion_log(scrollable_frame, status_label, lines, start_time)
+        replay_motion_log(scrollable_frame, status_label, lines)
 
 def main():
     root = tk.Tk()
@@ -133,19 +114,8 @@ def main():
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10)
 
-    filter_var = tk.StringVar(value="Replay All")
-    filter_menu = tk.OptionMenu(button_frame, filter_var, "Replay All", "Filter From Time")
-    filter_menu.config(font=default_font)
-    filter_menu.pack(side="left", padx=5)
-
-    time_label = tk.Label(button_frame, text="Start Time (HH:MM:SS):", font=default_font)
-    time_label.pack(side="left", padx=5)
-
-    time_entry = tk.Entry(button_frame, font=default_font, width=10)
-    time_entry.pack(side="left", padx=5)
-
-    tk.Button(button_frame, text="Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry, filter_var), font=default_font).pack(side="left", padx=5)
-    tk.Button(button_frame, text="Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry, filter_var), font=default_font).pack(side="left", padx=5)
+    tk.Button(button_frame, text="Replay", command=lambda: load_and_replay(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
+    tk.Button(button_frame, text="Refresh", command=lambda: load_and_replay(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="Clear", command=lambda: clear_canvas(scrollable_frame, status_label), font=default_font).pack(side="left", padx=5)
     tk.Button(button_frame, text="View Recovery Log", command=view_recovery_log, font=default_font).pack(side="left", padx=5)
 
