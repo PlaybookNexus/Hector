@@ -38,11 +38,12 @@ def load_motion_log():
     except Exception as e:
         return None, f"⚠️ Error reading motion.log: {e}"
 
-def launch_main():
+def launch_main(status_label):
     try:
         subprocess.Popen(["python3", MAIN_PATH])
+        status_label.config(text="🛠️ Launching main.py to regenerate motion log…")
     except Exception as e:
-        print(f"Error launching main.py: {e}")
+        status_label.config(text=f"❌ Failed to launch main.py: {e}")
 
 def view_recovery_log():
     log_window = tk.Toplevel()
@@ -86,19 +87,33 @@ def load_and_replay(canvas, status_label):
 def main():
     root = tk.Tk()
     root.title("🧠 Hector Visualizer")
-    root.geometry("700x500")
+    root.geometry("800x600")
 
-    canvas = tk.Canvas(root, bg="white")
-    canvas.pack(fill="both", expand=True)
+    # Main layout frame
+    main_frame = tk.Frame(root)
+    main_frame.pack(fill="both", expand=True)
 
-    status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen")
+    # Canvas with vertical scrollbar
+    canvas_frame = tk.Frame(main_frame)
+    canvas_frame.pack(fill="both", expand=True)
+
+    canvas = tk.Canvas(canvas_frame, bg="white")
+    scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+
+    # Status bar
+    status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen", anchor="w")
     status_label.pack(side="bottom", fill="x")
 
+    # Button row
     button_frame = tk.Frame(root)
-    button_frame.pack(pady=10)
+    button_frame.pack(side="bottom", pady=10)
 
     tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🛠️ Run main.py", command=launch_main).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: launch_main(status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(canvas, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
