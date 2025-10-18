@@ -1,3 +1,5 @@
+# ux/theme.py
+
 DARK_BG = "#121212"
 TEXT_COLOR = "#E0E0E0"
 ACCENT_COLOR = "#00BFA5"
