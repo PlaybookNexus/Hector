@@ -2,11 +2,28 @@ class RobotDogAgent:
     def __init__(self, agent_id):
         self.agent_id = agent_id
         self.id = agent_id  # ✅ Alias for graph compatibility
+        self.status = "idle"
+        self.task = None
         self.vector_state = {
             "status": "idle",
             "risk": "low",
-            "location": "unknown"
+            "location": "unknown",
+            "last_action": None
         }
 
+    def assign_task(self, task):
+        self.task = task
+        self.status = "assigned"
+        self.vector_state["last_action"] = f"task assigned: {task}"
+
     def perform_routine(self, routine_name):
-        print(f"{self.agent_id} executing dog routine: {routine_name}")
+        print(f"[{self.agent_id}] executing dog routine: {routine_name}")
+        self.vector_state["last_action"] = f"routine: {routine_name}"
+        self.status = "idle"
+
+    def reset(self):
+        print(f"[Recovery] Resetting {self.agent_id}")
+        self.status = "idle"
+        self.task = None
+        self.vector_state["status"] = "recovered"
+        self.vector_state["last_action"] = "reset complete"
