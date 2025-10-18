@@ -58,6 +58,26 @@ def launch_visualizer():
         status_label.config(text="Failed to launch visualizer.", fg=CRITICAL_COLOR)
         messagebox.showerror("Error", f"Could not launch visualizer:\n{e}")
 
+def run_git_pull():
+    def pull():
+        try:
+            status_label.config(text="Updating from Git...", fg=ACCENT_COLOR)
+            output_box.configure(state='normal')
+            output_box.insert(tk.END, "\nRunning: git pull\n")
+            output_box.configure(state='disabled')
+
+            result = subprocess.run(["git", "pull"], capture_output=True, text=True)
+            output_box.configure(state='normal')
+            output_box.insert(tk.END, result.stdout + result.stderr)
+            output_box.configure(state='disabled')
+
+            status_label.config(text="Update complete.", fg=TEXT_COLOR)
+        except Exception as e:
+            status_label.config(text="Git update failed.", fg=CRITICAL_COLOR)
+            messagebox.showerror("Git Error", f"Failed to pull updates:\n{e}")
+
+    threading.Thread(target=pull).start()
+
 # GUI setup
 root = tk.Tk()
 root.title("Hector Launcher")
@@ -99,6 +119,10 @@ clear_button.pack(side="left", padx=5)
 view_log_button = tk.Button(button_frame, text="View Log", command=launch_visualizer,
                             font=FONT, bg="#2196F3", fg=DARK_BG, width=15)
 view_log_button.pack(side="left", padx=5)
+
+update_button = tk.Button(button_frame, text="Update (git pull)", command=run_git_pull,
+                          font=FONT, bg="#9C27B0", fg="white", width=15)
+update_button.pack(side="left", padx=5)
 
 # Output box
 output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=FONT,
