@@ -4,12 +4,13 @@ import threading
 import subprocess
 import sys
 import io
-from main import main  # assumes main.py is in the same folder
+import os
 
 # Optional: UTF-8 output for broader character support
 sys.stdout.reconfigure(encoding='utf-8')
 
 default_font = ("Arial", 10)
+selected_theatre = tk.StringVar(value="search_and_rescue")  # Default theatre
 
 class TextRedirector(io.TextIOBase):
     def __init__(self, widget):
@@ -24,14 +25,21 @@ class TextRedirector(io.TextIOBase):
 def launch_hector():
     def run():
         try:
+            # Set theatre environment variable at launch time
+            os.environ["HECTOR_THEATRE"] = selected_theatre.get()
+
             status_label.config(text="Launching Hector mesh...")
             output_box.configure(state='normal')
             output_box.delete(1.0, tk.END)
             output_box.configure(state='disabled')
 
             sys.stdout = TextRedirector(output_box)
+            print(f"Selected theatre: {selected_theatre.get()}")
             print("Launching Hector mesh...\n")
+
+            from main import main
             main()
+
             print("\nAutonomy loop completed.")
             status_label.config(text="Hector finished his routine.")
             messagebox.showinfo("Hector Mesh", "Hector finished his routine.")
@@ -58,12 +66,25 @@ def launch_visualizer():
 # GUI setup
 root = tk.Tk()
 root.title("Hector Launcher")
-root.geometry("600x500")
+root.geometry("600x540")
 root.resizable(False, False)
 
 title_label = tk.Label(root, text="Launch Hector Mesh", font=("Arial", 16))
 title_label.pack(pady=10)
 
+# Theatre selector
+theatre_frame = tk.Frame(root)
+theatre_frame.pack(pady=5)
+
+theatre_label = tk.Label(theatre_frame, text="Mission Theatre:", font=default_font)
+theatre_label.pack(side="left", padx=5)
+
+theatre_dropdown = tk.OptionMenu(theatre_frame, selected_theatre,
+                                 "search_and_rescue", "firefighting", "combat_ops")
+theatre_dropdown.config(font=default_font, width=20)
+theatre_dropdown.pack(side="left", padx=5)
+
+# Buttons
 button_frame = tk.Frame(root)
 button_frame.pack(pady=5)
 
@@ -79,6 +100,7 @@ view_log_button = tk.Button(button_frame, text="View Log", command=launch_visual
                             font=default_font, bg="#2196F3", fg="white", width=15)
 view_log_button.pack(side="left", padx=5)
 
+# Output box
 output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=default_font,
                                        width=70, height=20, state='disabled', bg="#f0f0f0")
 output_box.pack(pady=10)

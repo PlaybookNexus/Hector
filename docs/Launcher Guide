@@ -1,0 +1,83 @@
+# 🧭 Hector Launcher Guide
+
+## Overview
+
+The Hector Launcher is a minimal control panel for running Hector’s autonomy mesh (`main.py`) and inspecting its output. It’s built with Tkinter for simplicity and cross-platform compatibility. No emojis, no expressive fonts — just clean, reliable execution.
+
+---
+
+## 🔧 What It Does
+
+- Runs `main.py` in a separate thread
+- Streams output into a scrollable, read-only box
+- Displays status updates (e.g. “Ready”, “Running”, “Completed”)
+- Clears output with one click
+- Launches the visualizer (`visualizer_gui.py`) to inspect motion logs
+
+---
+
+## 🖥️ How to Use It
+
+### 1. Launch the GUI
+
+From the project root, run:
+
+```bash
+python gui_launcher.py
+```
+
+### 2. Run Hector
+
+Click **Run main.py** to execute Hector’s autonomy loop. Output will stream live into the scrollable box.
+
+### 3. View Logs
+
+Click **View Log** to launch the visualizer (`visualizer_gui.py`). This opens a separate window to replay `motion.log`.
+
+### 4. Clear Output
+
+Click **Clear Output** to reset the display for a fresh run.
+
+---
+
+## 📁 File Structure
+
+```
+project/
+├── main.py
+├── gui_launcher.py
+├── dashboard/
+│   └── visualizer_gui.py
+├── logs/
+│   ├── motion.log
+│   └── recovery.log
+```
+
+---
+
+## 🧠 Notes for Contributors
+
+- All output is UTF-8 safe and emoji-free
+- `main.py` must be clean and executable — no GUI dependencies
+- `visualizer_gui.py` must be present in the `dashboard/` folder
+- Logs are written to `logs/motion.log` and `logs/recovery.log`
+
+---
+
+## 🛠️ Troubleshooting
+
+| Issue                          | Solution                                      |
+|--------------------------------|-----------------------------------------------|
+| Launcher window doesn’t open   | Confirm Python and Tkinter are installed      |
+| Output box stays blank         | Check that `main.py` prints to `stdout`       |
+| Visualizer fails to launch     | Confirm `visualizer_gui.py` exists and is clean |
+| Encoding error (e.g. Latin-1)  | Ensure all output is emoji-free and UTF-8     |
+
+---
+
+## 🧩 Remix Ideas
+
+- Add a dropdown to select agent routines
+- Add a toggle for override or recovery simulation
+- Add a log viewer tab for `recovery.log`
+- Modularize into `launcher.py` and `viewer.py` for separation of control and replay
