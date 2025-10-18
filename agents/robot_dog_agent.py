@@ -1,7 +1,7 @@
 class RobotDogAgent:
     def __init__(self, agent_id):
         self.agent_id = agent_id
-        self.id = agent_id  # ✅ Alias for graph compatibility
+        self.id = agent_id  # Alias for graph compatibility
         self.status = "idle"
         self.task = None
         self.vector_state = {
@@ -15,6 +15,14 @@ class RobotDogAgent:
         self.task = task
         self.status = "assigned"
         self.vector_state["last_action"] = f"task assigned: {task}"
+
+    def update(self):
+        if self.task:
+            self.perform_routine(self.task)
+            self.task = None
+        else:
+            self.status = "idle"
+            self.vector_state["last_action"] = "waiting"
 
     def perform_routine(self, routine_name):
         print(f"[{self.agent_id}] executing dog routine: {routine_name}")
