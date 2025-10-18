@@ -16,13 +16,22 @@ from agents.drone_agent import DroneAgent
 from dashboard.ui import render_dashboard, animate_motion
 
 # Ensure logs directory exists
-if not os.path.exists("logs"):
-    os.makedirs("logs")
+os.makedirs("logs", exist_ok=True)
+
+# Agent class registry
+AGENT_CLASSES = {
+    "arm": RobotArmAgent,
+    "humanoid": HumanoidAgent,
+    "dog": RobotDogAgent,
+    "car": CarAgent,
+    "boat": BoatAgent,
+    "drone": DroneAgent
+}
 
 def main():
     print("Booting Hector mesh...")
 
-    # Load selected theatre from environment variable
+    # Load theatre from environment
     theatre_name = os.environ.get("HECTOR_THEATRE", "search_and_rescue")
     print(f"Selected theatre: {theatre_name}")
 
@@ -35,31 +44,32 @@ def main():
     # Initialize mission graph
     graph = MissionGraph()
 
-    # Instantiate agents
-    agents = {
-        "arm-01": RobotArmAgent("arm-01"),
-        "humanoid-01": HumanoidAgent("humanoid-01"),
-        "noble-01": RobotDogAgent("noble-01"),
-        "warthog-01": CarAgent("warthog-01"),
-        "pelican-01": BoatAgent("pelican-01"),
-        "phantom-01": DroneAgent("phantom-01")
-    }
+    # Instantiate agents based on routine keys
+    agents = {}
+    for agent_id in selected_routines.ROUTINES.keys():
+        prefix = agent_id.split("-")[0]
+        agent_class = AGENT_CLASSES.get(prefix)
+        if agent_class:
+            agents[agent_id] = agent_class(agent_id)
+            graph.register_agent(agents[agent_id])
+        else:
+            print(f"Warning: No agent class found for prefix '{prefix}'")
 
-    # Register agents
-    for agent in agents.values():
-        graph.register_agent(agent)
-
-    # Assign and dispatch routines from selected theatre
+    # Assign and dispatch routines
     for agent_id, routines in selected_routines.ROUTINES.items():
         for routine_name, frames in routines.items():
             graph.assign_task(agent_id, routine_name)
             graph.dispatch_all()
             animate_motion(agent_id, routine_name)
 
-    # Simulate risk escalation
-    agents["humanoid-01"].vector_state["risk"] = "high"
-    agents["arm-01"].vector_state["risk"] = "critical"
-    agents["noble-01"].vector_state["risk"] = "medium"
+            if os.environ.get("HECTOR_TEACHABLE") == "true":
+                print(f"Dispatched '{routine_name}' to {agent_id}")
+
+    # Inject risk levels if defined
+    risk_levels = getattr(selected_routines, "RISK_LEVELS", {})
+    for agent_id, risk in risk_levels.items():
+        if agent_id in agents:
+            agents[agent_id].vector_state["risk"] = risk
 
     # Check for overrides
     override = OverrideManager(graph)
@@ -68,7 +78,7 @@ def main():
     # Animate intercept reflex if triggered
     animate_motion("humanoid-01", "intercept")
 
-    # Show vector summary
+    # Vector summary
     print("\nVector Summary:")
     for agent_id, state in graph.get_vector_summary().items():
         print(f"{agent_id}: {state}")
