@@ -11,7 +11,7 @@ LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
 MAIN_PATH = os.path.join(os.path.dirname(__file__), "..", "main.py")
 LOG_VIEWER_PATH = os.path.join(os.path.dirname(__file__), "recovery.log")
 
-emoji_font = ("Segoe UI Emoji", 10)
+emoji_font = ("Noto Color Emoji", 10)
 
 def replay_motion_log(scrollable_frame, status_label, lines, start_time=None):
     for widget in scrollable_frame.winfo_children():
@@ -78,11 +78,11 @@ def run_main_and_stream(scrollable_frame, status_label):
                     continue
                 timestamp = time.strftime("%H:%M:%S")
                 if "performing" in line:
-                    label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fg="blue", bg="white", anchor="w", justify="left")
+                    label = tk.Label(scrollable_frame, text=f"\n{line} [{timestamp}]", font=emoji_font_bold, fg="blue", bg="white", anchor="w", justify="left")
                 elif line.startswith("   "):
-                    label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="black", bg="white", anchor="w", justify="left")
+                    label = tk.Label(scrollable_frame, text=line, font=emoji_font, fg="black", bg="white", anchor="w", justify="left")
                 else:
-                    label = tk.Label(scrollable_frame, text=line, font=("Arial", 12), fg="gray", bg="white", anchor="w", justify="left")
+                    label = tk.Label(scrollable_frame, text=line, font=emoji_font, fg="gray", bg="white", anchor="w", justify="left")
                 label.pack(anchor="w", padx=10, pady=2)
                 scrollable_frame.update()
                 scrollable_frame.master.yview_moveto(1.0)
