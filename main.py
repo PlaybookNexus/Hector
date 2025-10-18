@@ -5,6 +5,8 @@ from graph.recovery import RecoveryManager
 from agents.robot_arm_agent import RobotArmAgent
 from agents.humanoid_agent import HumanoidAgent
 from dashboard.ui import render_dashboard, animate_motion
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 # Ensure logs directory exists
 if not os.path.exists("logs"):
