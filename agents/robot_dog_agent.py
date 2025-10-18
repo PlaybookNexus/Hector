@@ -1,8 +1,7 @@
-# agents/robot_dog_agent.py
-
 class RobotDogAgent:
     def __init__(self, agent_id):
         self.agent_id = agent_id
+        self.id = agent_id  # ✅ Alias for graph compatibility
         self.vector_state = {
             "status": "idle",
             "risk": "low",
