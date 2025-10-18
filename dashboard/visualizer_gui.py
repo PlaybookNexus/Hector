@@ -192,4 +192,9 @@ def main():
     tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: run_main_and_stream(scrollable_frame, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(scrollable_frame, status_label, time_entry)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(scrollable_frame, status_label)).pack(side="left
+    tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(scrollable_frame, status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
+
+    root.mainloop()
+
+if __name__ == "__main__":
