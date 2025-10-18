@@ -3,6 +3,7 @@ import time
 import os
 import sys
 import threading
+import subprocess
 from RecoveryManager import RecoveryManager
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
@@ -23,9 +24,12 @@ def replay_motion_log(canvas, status_label, lines):
         elif line.startswith("   "):
             canvas.create_text(30, y, anchor="nw", text=f"{line}", font=("Arial", 12), fill="black")
             y += 25
-            canvas.update()
-            time.sleep(0.3)
+        else:
+            canvas.create_text(30, y, anchor="nw", text=f"{line}", font=("Arial", 12), fill="gray")
+            y += 25
+        canvas.update()
         status_label.config(text=f"✅ Replaying frame {i+1} of {len(lines)} — {timestamp}")
+        time.sleep(0.2)
 
 def load_motion_log():
     if not os.path.exists(LOG_PATH):
@@ -45,26 +49,44 @@ def run_main_and_stream(canvas, status_label):
 
     def stream():
         try:
-            import runpy
-            sys.stdout.reconfigure(encoding='utf-8')
-            runpy.run_path(MAIN_PATH, run_name="__main__")
+            process = subprocess.Popen(
+                ["python", MAIN_PATH],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8"
+            )
+
+            y = 20
+            for i, line in enumerate(process.stdout):
+                line = line.strip()
+                if not line:
+                    continue
+                timestamp = time.strftime("%H:%M:%S")
+                if "performing" in line:
+                    canvas.create_text(10, y, anchor="nw", text=f"\n{line} [{timestamp}]", font=("Arial", 12, "bold"), fill="blue")
+                    y += 30
+                elif line.startswith("   "):
+                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="black")
+                    y += 25
+                else:
+                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
+                    y += 25
+                canvas.update()
+                status_label.config(text=f"📡 Frame {i+1} — {timestamp}")
+                time.sleep(0.2)
+
+            process.wait()
+            status_label.config(text="✅ main.py completed — loading motion log...")
             time.sleep(0.5)
             lines, error = load_motion_log()
             if error:
                 status_label.config(text=f"{error} — fallback mode activated.")
                 RecoveryManager.trigger_fallback(error)
-                sample = [
-                    "Frame 1: x=0, y=0, θ=0",
-                    "Frame 2: x=1, y=0, θ=15°",
-                    "Frame 3: x=2, y=1, θ=30°"
-                ]
-                y = 80
-                for line in sample:
-                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
-                    y += 25
             else:
                 status_label.config(text="✅ Motion log loaded — replaying...")
                 replay_motion_log(canvas, status_label, lines)
+
         except Exception as e:
             status_label.config(text=f"❌ Failed to run main.py: {e}")
 
