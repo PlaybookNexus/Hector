@@ -6,9 +6,6 @@ import sys
 import io
 import os
 
-# Reconfigure stdout before any redirection
-sys.stdout.reconfigure(encoding='utf-8')
-
 default_font = ("Arial", 10)
 
 class TextRedirector(io.TextIOBase):
