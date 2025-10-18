@@ -1,7 +1,8 @@
 import tkinter as tk
 import time
 import os
-import subprocess
+import sys
+import threading
 from RecoveryManager import RecoveryManager
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "motion.log")
@@ -38,12 +39,36 @@ def load_motion_log():
     except Exception as e:
         return None, f"⚠️ Error reading motion.log: {e}"
 
-def launch_main(status_label):
-    try:
-        subprocess.Popen(["python3", MAIN_PATH])
-        status_label.config(text="🛠️ Launching main.py to regenerate motion log…")
-    except Exception as e:
-        status_label.config(text=f"❌ Failed to launch main.py: {e}")
+def run_main_and_stream(canvas, status_label):
+    canvas.delete("all")
+    status_label.config(text="🛠️ Running main.py — streaming output...")
+
+    def stream():
+        try:
+            import runpy
+            sys.stdout.reconfigure(encoding='utf-8')
+            runpy.run_path(MAIN_PATH, run_name="__main__")
+            time.sleep(0.5)
+            lines, error = load_motion_log()
+            if error:
+                status_label.config(text=f"{error} — fallback mode activated.")
+                RecoveryManager.trigger_fallback(error)
+                sample = [
+                    "Frame 1: x=0, y=0, θ=0",
+                    "Frame 2: x=1, y=0, θ=15°",
+                    "Frame 3: x=2, y=1, θ=30°"
+                ]
+                y = 80
+                for line in sample:
+                    canvas.create_text(30, y, anchor="nw", text=line, font=("Arial", 12), fill="gray")
+                    y += 25
+            else:
+                status_label.config(text="✅ Motion log loaded — replaying...")
+                replay_motion_log(canvas, status_label, lines)
+        except Exception as e:
+            status_label.config(text=f"❌ Failed to run main.py: {e}")
+
+    threading.Thread(target=stream).start()
 
 def view_recovery_log():
     log_window = tk.Toplevel()
@@ -52,7 +77,7 @@ def view_recovery_log():
     text = tk.Text(log_window, wrap="word")
     text.pack(fill="both", expand=True)
     try:
-        with open(LOG_VIEWER_PATH, "r") as f:
+        with open(LOG_VIEWER_PATH, "r", encoding="utf-8") as f:
             content = f.read()
             text.insert("1.0", content if content else "No recovery events logged yet.")
     except FileNotFoundError:
@@ -89,11 +114,9 @@ def main():
     root.title("🧠 Hector Visualizer")
     root.geometry("800x600")
 
-    # Main layout frame
     main_frame = tk.Frame(root)
     main_frame.pack(fill="both", expand=True)
 
-    # Canvas with vertical scrollbar
     canvas_frame = tk.Frame(main_frame)
     canvas_frame.pack(fill="both", expand=True)
 
@@ -104,16 +127,14 @@ def main():
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    # Status bar
     status_label = tk.Label(root, text="🧭 Ready", font=("Arial", 10), fg="darkgreen", anchor="w")
     status_label.pack(side="bottom", fill="x")
 
-    # Button row
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10)
 
     tk.Button(button_frame, text="▶️ Replay", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
-    tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: launch_main(status_label)).pack(side="left", padx=5)
+    tk.Button(button_frame, text="🛠️ Run main.py", command=lambda: run_main_and_stream(canvas, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🔄 Refresh", command=lambda: load_and_replay(canvas, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="🧹 Clear", command=lambda: clear_canvas(canvas, status_label)).pack(side="left", padx=5)
     tk.Button(button_frame, text="📜 View Recovery Log", command=view_recovery_log).pack(side="left", padx=5)
