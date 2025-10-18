@@ -25,7 +25,12 @@ AGENT_CLASSES = {
     "dog": RobotDogAgent,
     "car": CarAgent,
     "boat": BoatAgent,
-    "drone": DroneAgent
+    "drone": DroneAgent,
+    # Aliases
+    "noble": RobotDogAgent,
+    "phantom": DroneAgent,
+    "warthog": CarAgent,
+    "pelican": BoatAgent
 }
 
 def main():
