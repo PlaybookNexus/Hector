@@ -5,18 +5,39 @@ import subprocess
 import sys
 import io
 import os
+import re
+import logging
 
 from ux.theme import DARK_BG, TEXT_COLOR, ACCENT_COLOR, WARNING_COLOR, CRITICAL_COLOR, FONT
+
+# Strip ANSI escape codes
+ANSI_ESCAPE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+
+# Ensure logs directory exists
+os.makedirs("logs", exist_ok=True)
+
+# Configure motion log
+logging.basicConfig(
+    filename="logs/motion.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 class TextRedirector(io.TextIOBase):
     def __init__(self, widget):
         self.widget = widget
 
     def write(self, message):
+        clean_msg = ANSI_ESCAPE.sub('', message).strip()
+        if clean_msg:
+            logging.info(clean_msg)
         self.widget.configure(state='normal')
-        self.widget.insert(tk.END, message)
+        self.widget.insert(tk.END, clean_msg + "\n")
         self.widget.see(tk.END)
         self.widget.configure(state='disabled')
+
+    def flush(self):
+        pass
 
 def get_version_info():
     try:
@@ -29,15 +50,29 @@ def get_version_info():
 def launch_hector():
     def run():
         try:
-            os.environ["HECTOR_THEATRE"] = selected_theatre.get()
+            os.environ["HECTOR_THEATRE"] = THEATRE_MAP[selected_theatre.get()]
+            os.environ["HECTOR_DURATION"] = str(mission_duration.get())
+            os.environ["HECTOR_RISK_THRESHOLD"] = risk_threshold.get()
+            os.environ["HECTOR_ENV_PROFILE"] = env_profile.get()
+
+            config_str = ",".join(
+                f"{atype.get()}:{acount.get()}"
+                for atype, acount in agent_config
+                if atype and acount
+            )
+            os.environ["HECTOR_AGENT_CONFIG"] = config_str
 
             status_label.config(text="Launching Hector mesh...", fg=ACCENT_COLOR)
             output_box.configure(state='normal')
             output_box.delete(1.0, tk.END)
             output_box.configure(state='disabled')
 
-            sys.stdout = TextRedirector(output_box)
+            redirector = TextRedirector(output_box)
+            sys.stdout = redirector
+            sys.stderr = redirector
+
             print(f"Selected theatre: {selected_theatre.get()}")
+            print(f"Agent config: {config_str}")
             print("Launching Hector mesh...\n")
 
             from main import main
@@ -45,7 +80,7 @@ def launch_hector():
 
             print("\nAutonomy loop completed.")
             status_label.config(text="Hector finished his routine.", fg=TEXT_COLOR)
-            messagebox.showinfo("Hector Mesh", "Hector finished his routine.")
+            messagebox.showinfo("Hector Mission Control", "Hector completed his mission.")
         except Exception as e:
             status_label.config(text="Error during execution.", fg=CRITICAL_COLOR)
             messagebox.showerror("Error", f"Failed to run Hector:\n{e}")
@@ -89,53 +124,96 @@ def run_git_pull():
 
 # GUI setup
 root = tk.Tk()
-root.title("Hector Launcher")
-root.geometry("720x540")
+root.title("Hector Mission Control")
+root.geometry("720x700")
 root.resizable(False, False)
 root.configure(bg=DARK_BG)
 
-selected_theatre = tk.StringVar(value="search_and_rescue")
+THEATRE_MAP = {
+    "Search and Rescue": "search_and_rescue",
+    "Firefighting": "firefighting",
+    "Combat Ops": "combat_ops"
+}
 
-title_label = tk.Label(root, text="Launch Hector Mesh", font=("Segoe UI", 16, "bold"),
-                       bg=DARK_BG, fg=ACCENT_COLOR)
-title_label.pack(pady=10)
+selected_theatre = tk.StringVar(value="Search and Rescue")
+mission_duration = tk.IntVar(value=15)
+risk_threshold = tk.StringVar(value="medium")
+env_profile = tk.StringVar(value="urban")
+agent_config = []
+
+# Title and version
+tk.Label(root, text="Mission Control", font=("Segoe UI", 16, "bold"),
+         bg=DARK_BG, fg=ACCENT_COLOR).pack(pady=10)
 
 version_label = tk.Label(root, text=get_version_info(), font=("Segoe UI", 10),
                          bg=DARK_BG, fg=TEXT_COLOR)
 version_label.pack(pady=(0, 10))
 
-# Theatre selector
+# Mission type selector
 theatre_frame = tk.Frame(root, bg=DARK_BG)
 theatre_frame.pack(pady=5)
 
-theatre_label = tk.Label(theatre_frame, text="Choose Mission Type:", font=FONT,
-                         bg=DARK_BG, fg=TEXT_COLOR)
-theatre_label.pack(side="left", padx=5)
+tk.Label(theatre_frame, text="Choose Mission Type:", font=FONT,
+         bg=DARK_BG, fg=TEXT_COLOR).pack(side="left", padx=5)
 
 theatre_dropdown = tk.OptionMenu(theatre_frame, selected_theatre,
-                                 "search_and_rescue", "firefighting", "combat_ops")
+                                 *THEATRE_MAP.keys())
 theatre_dropdown.config(font=FONT, bg="#1E1E1E", fg=TEXT_COLOR, width=20)
 theatre_dropdown.pack(side="left", padx=5)
+
+# Mission parameters
+param_frame = tk.Frame(root, bg=DARK_BG)
+param_frame.pack(pady=5)
+
+tk.Label(param_frame, text="Duration (min):", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).grid(row=0, column=0, padx=5, pady=2, sticky="w")
+tk.Spinbox(param_frame, from_=1, to=999, textvariable=mission_duration, font=FONT, width=5).grid(row=0, column=1, padx=5, pady=2)
+
+tk.Label(param_frame, text="Risk Threshold:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).grid(row=1, column=0, padx=5, pady=2, sticky="w")
+tk.OptionMenu(param_frame, risk_threshold, "low", "medium", "high").grid(row=1, column=1, padx=5, pady=2)
+
+tk.Label(param_frame, text="Environment:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).grid(row=2, column=0, padx=5, pady=2, sticky="w")
+tk.OptionMenu(param_frame, env_profile, "urban", "forest", "fire_zone").grid(row=2, column=1, padx=5, pady=2)
+
+# Agent swarm config
+agent_frame = tk.Frame(root, bg=DARK_BG)
+agent_frame.pack(pady=5)
+
+tk.Label(agent_frame, text="Agent Swarm:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).grid(row=0, column=0, columnspan=3, pady=(0, 5))
+
+def add_agent_row():
+    row = len(agent_config) + 1
+    agent_type_var = tk.StringVar(value="drone")
+    agent_count_var = tk.StringVar(value="1")
+
+    tk.OptionMenu(agent_frame, agent_type_var, "drone", "dog", "car", "humanoid", "arm", "boat").grid(row=row, column=0, padx=5)
+    tk.Entry(agent_frame, textvariable=agent_count_var, font=FONT, width=5).grid(row=row, column=1, padx=5)
+    tk.Button(agent_frame, text="Remove", command=lambda: remove_agent_row(row), font=FONT, bg=WARNING_COLOR, fg=DARK_BG).grid(row=row, column=2, padx=5)
+
+    agent_config.append((agent_type_var, agent_count_var))
+
+def remove_agent_row(index):
+    for widget in agent_frame.grid_slaves(row=index):
+        widget.destroy()
+    agent_config[index - 1] = None
+
+tk.Button(agent_frame, text="Add Agent", command=add_agent_row, font=FONT, bg=ACCENT_COLOR, fg=DARK_BG).grid(row=99, column=0, columnspan=3, pady=5)
+add_agent_row()
 
 # Buttons
 button_frame = tk.Frame(root, bg=DARK_BG)
 button_frame.pack(pady=5)
 
-launch_button = tk.Button(button_frame, text="Start Mission", command=launch_hector,
-                          font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=15)
-launch_button.pack(side="left", padx=5)
+tk.Button(button_frame, text="Start Mission", command=launch_hector,
+          font=FONT, bg=ACCENT_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
 
-clear_button = tk.Button(button_frame, text="Clear Output", command=clear_output,
-                         font=FONT, bg=WARNING_COLOR, fg=DARK_BG, width=15)
-clear_button.pack(side="left", padx=5)
+tk.Button(button_frame, text="Clear Output", command=clear_output,
+          font=FONT, bg=WARNING_COLOR, fg=DARK_BG, width=15).pack(side="left", padx=5)
 
-view_log_button = tk.Button(button_frame, text="View Log", command=launch_visualizer,
-                            font=FONT, bg="#2196F3", fg=DARK_BG, width=15)
-view_log_button.pack(side="left", padx=5)
+tk.Button(button_frame, text="View Log", command=launch_visualizer,
+          font=FONT, bg="#2196F3", fg=DARK_BG, width=15).pack(side="left", padx=5)
 
-update_button = tk.Button(button_frame, text="Update Hector", command=run_git_pull,
-                          font=FONT, bg="#9C27B0", fg="white", width=15)
-update_button.pack(side="left", padx=5)
+tk.Button(button_frame, text="Update Hector", command=run_git_pull,
+          font=FONT, bg="#9C27B0", fg="white", width=15).pack(side="left", padx=5)
 
 # Output box
 output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=FONT,
@@ -143,8 +221,10 @@ output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=FONT,
                                        bg="#1E1E1E", fg=TEXT_COLOR)
 output_box.pack(pady=10)
 
+# Status label
 status_label = tk.Label(root, text="Ready", font=FONT, fg=ACCENT_COLOR,
                         bg=DARK_BG, anchor="w")
 status_label.pack(side="bottom", fill="x")
 
+# Launch GUI
 root.mainloop()
