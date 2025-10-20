@@ -223,3 +223,99 @@
 2025-10-20 17:03:28,325 [INFO] Override Status: grounded
 2025-10-20 17:03:28,333 [INFO] ----------------------------------------
 2025-10-20 17:03:28,339 [INFO] Autonomy loop completed.
+2025-10-20 17:32:17,800 [INFO] Selected theatre: Combat Ops
+2025-10-20 17:32:17,806 [INFO] Agent config: drone:15,car:1,arm:1,drone:1
+2025-10-20 17:32:17,813 [INFO] Launching Hector mesh...
+2025-10-20 17:32:17,865 [INFO] Booting Hector mesh...
+2025-10-20 17:32:17,876 [INFO] Selected theatre: combat_ops
+2025-10-20 17:32:17,892 [INFO] Mission duration: 1 min
+2025-10-20 17:32:17,907 [INFO] Risk threshold: medium
+2025-10-20 17:32:17,916 [INFO] Agent count: 1
+2025-10-20 17:32:17,931 [INFO] Environment profile: urban
+2025-10-20 17:32:17,950 [INFO] [2025-10-20 17:32:17] Registered agent: drone-01
+2025-10-20 17:32:17,958 [INFO] No routines found for drone-01
+2025-10-20 17:32:17,976 [INFO] [2025-10-20 17:32:17] drone-01 status: idle, last: waiting
+2025-10-20 17:32:18,992 [INFO] [2025-10-20 17:32:18] drone-01 status: idle, last: waiting
+2025-10-20 17:32:20,010 [INFO] [2025-10-20 17:32:20] drone-01 status: idle, last: waiting
+2025-10-20 17:32:21,024 [INFO] [2025-10-20 17:32:21] drone-01 status: idle, last: waiting
+2025-10-20 17:32:22,039 [INFO] [2025-10-20 17:32:22] drone-01 status: idle, last: waiting
+2025-10-20 17:32:23,059 [INFO] [2025-10-20 17:32:23] drone-01 status: idle, last: waiting
+2025-10-20 17:32:24,081 [INFO] [2025-10-20 17:32:24] drone-01 status: idle, last: waiting
+2025-10-20 17:32:25,109 [INFO] [2025-10-20 17:32:25] drone-01 status: idle, last: waiting
+2025-10-20 17:32:26,127 [INFO] [2025-10-20 17:32:26] drone-01 status: idle, last: waiting
+2025-10-20 17:32:27,150 [INFO] [2025-10-20 17:32:27] drone-01 status: idle, last: waiting
+2025-10-20 17:32:28,168 [INFO] [2025-10-20 17:32:28] drone-01 status: idle, last: waiting
+2025-10-20 17:32:29,182 [INFO] [2025-10-20 17:32:29] drone-01 status: idle, last: waiting
+2025-10-20 17:32:30,206 [INFO] [2025-10-20 17:32:30] drone-01 status: idle, last: waiting
+2025-10-20 17:32:31,209 [INFO] [2025-10-20 17:32:31] drone-01 status: idle, last: waiting
+2025-10-20 17:32:32,228 [INFO] [2025-10-20 17:32:32] drone-01 status: idle, last: waiting
+2025-10-20 17:32:33,245 [INFO] [2025-10-20 17:32:33] drone-01 status: idle, last: waiting
+2025-10-20 17:32:34,260 [INFO] [2025-10-20 17:32:34] drone-01 status: idle, last: waiting
+2025-10-20 17:32:35,275 [INFO] [2025-10-20 17:32:35] drone-01 status: idle, last: waiting
+2025-10-20 17:32:36,298 [INFO] [2025-10-20 17:32:36] drone-01 status: idle, last: waiting
+2025-10-20 17:32:37,317 [INFO] [2025-10-20 17:32:37] drone-01 status: idle, last: waiting
+2025-10-20 17:32:38,339 [INFO] [2025-10-20 17:32:38] drone-01 status: idle, last: waiting
+2025-10-20 17:32:39,364 [INFO] [2025-10-20 17:32:39] drone-01 status: idle, last: waiting
+2025-10-20 17:32:40,379 [INFO] [2025-10-20 17:32:40] drone-01 status: idle, last: waiting
+2025-10-20 17:32:41,390 [INFO] [2025-10-20 17:32:41] drone-01 status: idle, last: waiting
+2025-10-20 17:32:42,396 [INFO] [2025-10-20 17:32:42] drone-01 status: idle, last: waiting
+2025-10-20 17:32:43,412 [INFO] [2025-10-20 17:32:43] drone-01 status: idle, last: waiting
+2025-10-20 17:32:44,433 [INFO] [2025-10-20 17:32:44] drone-01 status: idle, last: waiting
+2025-10-20 17:32:45,453 [INFO] [2025-10-20 17:32:45] drone-01 status: idle, last: waiting
+2025-10-20 17:32:46,467 [INFO] [2025-10-20 17:32:46] drone-01 status: idle, last: waiting
+2025-10-20 17:32:47,480 [INFO] [2025-10-20 17:32:47] drone-01 status: idle, last: waiting
+2025-10-20 17:32:48,497 [INFO] [2025-10-20 17:32:48] drone-01 status: idle, last: waiting
+2025-10-20 17:32:49,509 [INFO] [2025-10-20 17:32:49] drone-01 status: idle, last: waiting
+2025-10-20 17:32:50,528 [INFO] [2025-10-20 17:32:50] drone-01 status: idle, last: waiting
+2025-10-20 17:32:51,534 [INFO] [2025-10-20 17:32:51] drone-01 status: idle, last: waiting
+2025-10-20 17:32:52,556 [INFO] [2025-10-20 17:32:52] drone-01 status: idle, last: waiting
+2025-10-20 17:32:53,573 [INFO] [2025-10-20 17:32:53] drone-01 status: idle, last: waiting
+2025-10-20 17:32:54,595 [INFO] [2025-10-20 17:32:54] drone-01 status: idle, last: waiting
+2025-10-20 17:32:55,612 [INFO] [2025-10-20 17:32:55] drone-01 status: idle, last: waiting
+2025-10-20 17:32:56,618 [INFO] [2025-10-20 17:32:56] drone-01 status: idle, last: waiting
+2025-10-20 17:32:57,635 [INFO] [2025-10-20 17:32:57] drone-01 status: idle, last: waiting
+2025-10-20 17:32:58,660 [INFO] [2025-10-20 17:32:58] drone-01 status: idle, last: waiting
+2025-10-20 17:32:59,677 [INFO] [2025-10-20 17:32:59] drone-01 status: idle, last: waiting
+2025-10-20 17:33:00,692 [INFO] [2025-10-20 17:33:00] drone-01 status: idle, last: waiting
+2025-10-20 17:33:01,710 [INFO] [2025-10-20 17:33:01] drone-01 status: idle, last: waiting
+2025-10-20 17:33:02,721 [INFO] [2025-10-20 17:33:02] drone-01 status: idle, last: waiting
+2025-10-20 17:33:03,739 [INFO] [2025-10-20 17:33:03] drone-01 status: idle, last: waiting
+2025-10-20 17:33:04,758 [INFO] [2025-10-20 17:33:04] drone-01 status: idle, last: waiting
+2025-10-20 17:33:05,771 [INFO] [2025-10-20 17:33:05] drone-01 status: idle, last: waiting
+2025-10-20 17:33:06,792 [INFO] [2025-10-20 17:33:06] drone-01 status: idle, last: waiting
+2025-10-20 17:33:07,809 [INFO] [2025-10-20 17:33:07] drone-01 status: idle, last: waiting
+2025-10-20 17:33:08,827 [INFO] [2025-10-20 17:33:08] drone-01 status: idle, last: waiting
+2025-10-20 17:33:09,843 [INFO] [2025-10-20 17:33:09] drone-01 status: idle, last: waiting
+2025-10-20 17:33:10,860 [INFO] [2025-10-20 17:33:10] drone-01 status: idle, last: waiting
+2025-10-20 17:33:11,866 [INFO] [2025-10-20 17:33:11] drone-01 status: idle, last: waiting
+2025-10-20 17:33:12,882 [INFO] [2025-10-20 17:33:12] drone-01 status: idle, last: waiting
+2025-10-20 17:33:13,912 [INFO] [2025-10-20 17:33:13] drone-01 status: idle, last: waiting
+2025-10-20 17:33:14,923 [INFO] [2025-10-20 17:33:14] drone-01 status: idle, last: waiting
+2025-10-20 17:33:15,941 [INFO] [2025-10-20 17:33:15] drone-01 status: idle, last: waiting
+2025-10-20 17:33:16,960 [INFO] [2025-10-20 17:33:16] drone-01 status: idle, last: waiting
+2025-10-20 17:33:17,975 [INFO] [2025-10-20 17:33:17] drone-01 status: idle, last: waiting
+2025-10-20 17:33:18,995 [INFO] Mission duration reached. Proceeding to override and recovery...
+2025-10-20 17:33:19,010 [INFO] Checking risk levels with threshold: medium
+2025-10-20 17:33:19,018 [INFO] [drone-01] Risk: low (rank 1)
+2025-10-20 17:33:19,026 [INFO] humanoid-01 performing 'intercept' routine...
+2025-10-20 17:33:19,031 [INFO] scanning perimeter
+2025-10-20 17:33:19,342 [INFO] posture shift
+2025-10-20 17:33:19,652 [INFO] signal sent
+2025-10-20 17:33:19,971 [INFO] stance locked
+[2025-10-20 17:33:20] humanoid-01 performing intercept routine
+   scanning perimeter
+   posture shift
+   signal sent
+   stance locked
+2025-10-20 17:33:20,290 [INFO] Vector Summary:
+2025-10-20 17:33:20,298 [INFO] drone-01: {'status': 'grounded', 'risk': 'low', 'location': 'unknown', 'last_action': 'waiting', 'altitude': 0, 'env': 'urban'}
+2025-10-20 17:33:20,307 [INFO] Hector Override Dashboard
+2025-10-20 17:33:20,314 [INFO] ----------------------------------------
+2025-10-20 17:33:20,322 [INFO] [drone-01] (DroneAgent)
+2025-10-20 17:33:20,324 [INFO] Task: None
+2025-10-20 17:33:20,331 [INFO] Status: idle
+2025-10-20 17:33:20,340 [INFO] Risk: low
+2025-10-20 17:33:20,343 [INFO] Last Action: waiting
+2025-10-20 17:33:20,343 [INFO] Override Status: grounded
+2025-10-20 17:33:20,349 [INFO] ----------------------------------------
+2025-10-20 17:33:20,359 [INFO] Autonomy loop completed.

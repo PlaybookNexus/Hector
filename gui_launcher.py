@@ -62,6 +62,8 @@ def launch_hector():
             )
             os.environ["HECTOR_AGENT_CONFIG"] = config_str
 
+            update_preview()
+
             status_label.config(text="Launching Hector mesh...", fg=ACCENT_COLOR)
             output_box.configure(state='normal')
             output_box.delete(1.0, tk.END)
@@ -125,7 +127,7 @@ def run_git_pull():
 # GUI setup
 root = tk.Tk()
 root.title("Hector Mission Control")
-root.geometry("720x700")
+root.geometry("720x800")
 root.resizable(False, False)
 root.configure(bg=DARK_BG)
 
@@ -180,6 +182,33 @@ agent_frame.pack(pady=5)
 
 tk.Label(agent_frame, text="Agent Swarm:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).grid(row=0, column=0, columnspan=3, pady=(0, 5))
 
+# Swarm Preview Panel
+preview_frame = tk.Frame(root, bg=DARK_BG)
+preview_frame.pack(pady=5)
+
+tk.Label(preview_frame, text="Swarm Preview:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).pack(anchor="w", padx=5)
+
+preview_box = scrolledtext.ScrolledText(preview_frame, wrap=tk.WORD, font=FONT,
+                                        width=60, height=6, state='disabled',
+                                        bg="#1E1E1E", fg=TEXT_COLOR)
+preview_box.pack(padx=5, pady=5)
+
+def update_preview():
+    preview_box.configure(state='normal')
+    preview_box.delete(1.0, tk.END)
+
+    for i, (atype, acount) in enumerate(agent_config):
+        if atype and acount:
+            try:
+                count = int(acount.get())
+                for j in range(count):
+                    agent_id = f"{atype.get()}-{j+1:02d}"
+                    preview_box.insert(tk.END, f"🟢 {agent_id}\n")
+            except ValueError:
+                preview_box.insert(tk.END, f"⚠️ Invalid count for {atype.get()}\n")
+
+    preview_box.configure(state='disabled')
+
 def add_agent_row():
     row = len(agent_config) + 1
     agent_type_var = tk.StringVar(value="drone")
@@ -190,11 +219,13 @@ def add_agent_row():
     tk.Button(agent_frame, text="Remove", command=lambda: remove_agent_row(row), font=FONT, bg=WARNING_COLOR, fg=DARK_BG).grid(row=row, column=2, padx=5)
 
     agent_config.append((agent_type_var, agent_count_var))
+    update_preview()
 
 def remove_agent_row(index):
     for widget in agent_frame.grid_slaves(row=index):
         widget.destroy()
     agent_config[index - 1] = None
+    update_preview()
 
 tk.Button(agent_frame, text="Add Agent", command=add_agent_row, font=FONT, bg=ACCENT_COLOR, fg=DARK_BG).grid(row=99, column=0, columnspan=3, pady=5)
 add_agent_row()
