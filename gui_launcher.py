@@ -27,6 +27,15 @@ AGENT_COLORS = {
     "humanoid": "#9C27B0", "arm": "#795548", "boat": "#2196F3"
 }
 
+AGENT_EMOJIS = {
+    "drone": "🛸",
+    "dog": "🐕",
+    "car": "🚗",
+    "humanoid": "🤖",
+    "arm": "🦾",
+    "boat": "🚤"
+}
+
 live_agents = {}
 
 class LiveAgentNode:
@@ -35,7 +44,8 @@ class LiveAgentNode:
         self.agent_id = agent_id
         self.color = AGENT_COLORS.get(agent_type, TEXT_COLOR)
         self.node = canvas.create_oval(x-10, y-10, x+10, y+10, fill=self.color, outline="")
-        self.label = canvas.create_text(x, y-16, text=agent_id, font=("Segoe UI", 8), fill=self.color)
+        emoji = AGENT_EMOJIS.get(agent_type, "❔")
+        self.label = canvas.create_text(x, y-16, text=f"{emoji} {agent_id}", font=("Segoe UI", 8), fill=TEXT_COLOR)
 
     def update(self, x, y, theta):
         self.canvas.coords(self.node, x-10, y-10, x+10, y+10)
