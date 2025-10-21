@@ -7,6 +7,8 @@ import io
 import os
 import re
 import logging
+from math import sin, cos
+from datetime import datetime, timedelta
 
 from ux.theme import DARK_BG, TEXT_COLOR, ACCENT_COLOR, WARNING_COLOR, CRITICAL_COLOR, FONT
 
@@ -50,24 +52,25 @@ def get_version_info():
 def launch_hector():
     def run():
         try:
-            os.environ["HECTOR_THEATRE"] = THEATRE_MAP[selected_theatre.get()]
-            os.environ["HECTOR_DURATION"] = str(mission_duration.get())
-            os.environ["HECTOR_RISK_THRESHOLD"] = risk_threshold.get()
-            os.environ["HECTOR_ENV_PROFILE"] = env_profile.get()
+            theatre = THEATRE_MAP[selected_theatre.get()]
+            duration = mission_duration.get()
+            env = env_profile.get()
+            risk = risk_threshold.get()
 
-            config_str = ",".join(
-                f"{atype.get()}:{acount.get()}"
-                for entry in agent_config
-                if entry is not None
-                for atype, acount in [entry]
-                if atype and acount
-        )
-            
-            os.environ["HECTOR_AGENT_CONFIG"] = config_str
+            agents = []
+            for entry in agent_config:
+                if entry:
+                    atype, acount = entry
+                    try:
+                        count = int(acount.get())
+                        for i in range(count):
+                            agents.append((atype.get(), f"{atype.get()}-{i+1:02d}"))
+                    except ValueError:
+                        continue
 
             update_preview()
 
-            status_label.config(text="Launching Hector mesh...", fg=ACCENT_COLOR)
+            status_label.config(text="Generating mission log...", fg=ACCENT_COLOR)
             output_box.configure(state='normal')
             output_box.delete(1.0, tk.END)
             output_box.configure(state='disabled')
@@ -77,18 +80,38 @@ def launch_hector():
             sys.stderr = redirector
 
             print(f"Selected theatre: {selected_theatre.get()}")
-            print(f"Agent config: {config_str}")
-            print("Launching Hector mesh...\n")
+            print(f"Agent config: {[aid for _, aid in agents]}")
+            print("Generating motion.log...\n")
 
-            from main import main
-            main()
+            with open("logs/motion.log", "w", encoding="utf-8") as f:
+                start_time = datetime.now()
+                for t in range(duration * 3):  # ~3 frames per minute
+                    
+                    timestamp = start_time + timedelta(seconds=t * 20)
+                    f.write(f"# {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-            print("\nAutonomy loop completed.")
-            status_label.config(text="Hector finished his routine.", fg=TEXT_COLOR)
-            messagebox.showinfo("Hector Mission Control", "Hector completed his mission.")
+                    for atype, aid in agents:
+                        x = 5 + t * 0.5 + hash(aid) % 3
+                        y = 5 + (t % 10) * 0.3 + hash(aid[::-1]) % 2
+                        theta = (t * 15 + hash(aid)) % 360
+
+                        if theatre == "search_and_rescue":
+                            x += (t % 5) * 0.2
+                            y += (t % 3) * 0.1
+                        elif theatre == "firefighting":
+                            x += sin(t / 5) * 2
+                            y += cos(t / 5) * 2
+                        elif theatre == "combat_ops":
+                            theta = (theta + 180) % 360
+
+                        f.write(f"{aid}: x={x:.2f}, y={y:.2f}, θ={theta:.1f} degrees\n")
+
+            print("\nMission log generated.")
+            status_label.config(text="Mission log ready for replay.", fg=TEXT_COLOR)
+            messagebox.showinfo("Hector Mission Control", "motion.log generated successfully.")
         except Exception as e:
-            status_label.config(text="Error during execution.", fg=CRITICAL_COLOR)
-            messagebox.showerror("Error", f"Failed to run Hector:\n{e}")
+            status_label.config(text="Error during mission generation.", fg=CRITICAL_COLOR)
+            messagebox.showerror("Error", f"Failed to generate motion log:\n{e}")
 
     threading.Thread(target=run).start()
 
@@ -100,11 +123,11 @@ def clear_output():
 
 def launch_visualizer():
     try:
-        subprocess.Popen(["python", "dashboard/visualizer_gui.py"])
-        status_label.config(text="Visualizer launched.", fg=ACCENT_COLOR)
+        subprocess.Popen(["python", "dashboard/graph_visualizer.py"])
+        status_label.config(text="Graph Visualizer launched.", fg=ACCENT_COLOR)
     except Exception as e:
-        status_label.config(text="Failed to launch visualizer.", fg=CRITICAL_COLOR)
-        messagebox.showerror("Error", f"Could not launch visualizer:\n{e}")
+        status_label.config(text="Failed to launch Graph Visualizer.", fg=CRITICAL_COLOR)
+        messagebox.showerror("Error", f"Could not launch Graph Visualizer:\n{e}")
 
 def run_git_pull():
     def pull():
@@ -191,9 +214,16 @@ preview_frame.pack(pady=5)
 
 tk.Label(preview_frame, text="Swarm Preview:", font=FONT, bg=DARK_BG, fg=TEXT_COLOR).pack(anchor="w", padx=5)
 
-preview_box = scrolledtext.ScrolledText(preview_frame, wrap=tk.WORD, font=FONT,
-                                        width=60, height=6, state='disabled',
-                                        bg="#1E1E1E", fg=TEXT_COLOR)
+preview_box = scrolledtext.ScrolledText(
+    preview_frame,
+    wrap=tk.WORD,
+    font=FONT,
+    width=60,
+    height=6,
+    state='disabled',
+    bg="#1E1E1E",
+    fg=TEXT_COLOR
+)
 preview_box.pack(padx=5, pady=5)
 
 def update_preview():
@@ -250,15 +280,29 @@ tk.Button(button_frame, text="View Log", command=launch_visualizer,
 tk.Button(button_frame, text="Update Hector", command=run_git_pull,
           font=FONT, bg="#9C27B0", fg="white", width=15).pack(side="left", padx=5)
 
+
 # Output box
-output_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, font=FONT,
-                                       width=70, height=20, state='disabled',
-                                       bg="#1E1E1E", fg=TEXT_COLOR)
+output_box = scrolledtext.ScrolledText(
+    root,
+    wrap=tk.WORD,
+    font=FONT,
+    width=70,
+    height=20,
+    state='disabled',
+    bg="#1E1E1E",
+    fg=TEXT_COLOR
+)
 output_box.pack(pady=10)
 
 # Status label
-status_label = tk.Label(root, text="Ready", font=FONT, fg=ACCENT_COLOR,
-                        bg=DARK_BG, anchor="w")
+status_label = tk.Label(
+    root,
+    text="Ready",
+    font=FONT,
+    fg=ACCENT_COLOR,
+    bg=DARK_BG,
+    anchor="w"
+)
 status_label.pack(side="bottom", fill="x")
 
 # Launch GUI

@@ -33,6 +33,13 @@ AGENT_CLASSES = {
     "pelican": BoatAgent
 }
 
+def emit_motion_frame(agent):
+    x = agent.vector_state.get("x", 0)
+    y = agent.vector_state.get("y", 0)
+    theta = agent.vector_state.get("θ", 0)
+    status = agent.vector_state.get("status", "idle")
+    print(f"{agent.agent_id}: x={x:.2f}, y={y:.2f}, θ={theta:.1f} degrees — status: {status}")
+
 def main():
     print("Booting Hector mesh...")
 
@@ -72,8 +79,10 @@ def main():
         agent_id = f"{default_type}-{i+1:02d}"
         agent = agent_class(agent_id)
         agent.vector_state["env"] = env_profile
+        agent.vector_state["status"] = "waiting"
         agents[agent_id] = agent
         graph.register_agent(agent)
+        print(f"Registered agent: {agent_id}")
 
     # Assign routines if available
     for agent_id in agents:
@@ -100,8 +109,14 @@ def main():
     start_time = time.time()
     max_duration = duration_min * 60  # seconds
 
+    print("Starting mission loop...")
     while time.time() - start_time < max_duration:
         graph.dispatch_all()
+
+        # Emit motion frames for visualizer
+        for agent in agents.values():
+            emit_motion_frame(agent)
+
         time.sleep(1)  # tick rate
 
     print("\nMission duration reached. Proceeding to override and recovery...")

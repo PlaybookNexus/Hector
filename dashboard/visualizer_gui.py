@@ -76,19 +76,25 @@ def delete_motion_log(status_label, scrollable_frame):
     global is_playing
     is_playing = False
 
+    # Release stdout/stderr in case it's still redirected
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+
+    # Stop playback thread if active
+    if play_thread and play_thread.is_alive():
+        play_thread.join(timeout=1)
+
     try:
         if os.path.isfile(LOG_PATH):
             os.remove(LOG_PATH)
+            for widget in scrollable_frame.winfo_children():
+                widget.destroy()
             status_label.config(text="motion.log deleted and canvas cleared.", fg=CRITICAL_COLOR)
         else:
             status_label.config(text="motion.log not found.", fg=WARNING_COLOR)
     except Exception as e:
         status_label.config(text=f"Error deleting log: {e}", fg=CRITICAL_COLOR)
-
-    for widget in scrollable_frame.winfo_children():
-        widget.destroy()
-    status_label.config(text="motion.log deleted and canvas cleared.", fg=CRITICAL_COLOR)
-
+        
 def view_recovery_log():
     log_window = tk.Toplevel()
     log_window.title("Recovery Log")
