@@ -106,6 +106,8 @@ def launch_hector():
             status_label.config(text="Generating mission log...", fg=ACCENT_COLOR)
             output_box.configure(state='normal')
             output_box.delete(1.0, tk.END)
+            output_box.insert(tk.END, "🟢 Mission log started...\n")
+            output_box.see(tk.END)
             output_box.configure(state='disabled')
             visualizer_canvas.delete("all")
             live_agents.clear()
@@ -146,8 +148,23 @@ def launch_hector():
 
                         theta = (t * 12 + i * 30) % 360
                         
+                        # Write to motion.log
                         f.write(f"{aid}: x={x:.2f}, y={y:.2f}, θ={theta:.1f} degrees\n")
 
+                        # Stream to output box with emoji and color tag
+                        emoji = AGENT_EMOJIS.get(atype, "❔")
+                        log_line = f"[{timestamp.strftime('%H:%M:%S')}] {emoji} {aid}: x={x:.2f}, y={y:.2f}, θ={theta:.1f}°\n"
+
+                        output_box.configure(state='normal')
+
+                        if x < 0 or y < 0:
+                            output_box.insert(tk.END, f"⚠️ {aid} out of bounds\n", "warning")
+
+                        output_box.insert(tk.END, log_line, atype)
+                        output_box.see(tk.END)
+                        output_box.configure(state='disabled')
+
+                        # Normalize coordinates to canvas
                         canvas_width = visualizer_canvas.winfo_width()
                         canvas_height = visualizer_canvas.winfo_height()
 
@@ -180,7 +197,7 @@ def clear_output():
 
 def launch_visualizer():
     try:
-        subprocess.Popen(["python", "dashboard/graph_visualizer.py"])
+        subprocess.Popen(["python", "dashboard/visualizer_gui.py"])
         status_label.config(text="Graph Visualizer launched.", fg=ACCENT_COLOR)
     except Exception as e:
         status_label.config(text="Failed to launch Graph Visualizer.", fg=CRITICAL_COLOR)
