@@ -75,16 +75,19 @@ def pause_motion(status_label):
 def delete_motion_log(status_label, scrollable_frame):
     global is_playing
     is_playing = False
+
     try:
-        if os.path.exists(LOG_PATH):
+        if os.path.isfile(LOG_PATH):
             os.remove(LOG_PATH)
-            status_label.config(text="motion.log deleted.", fg=CRITICAL_COLOR)
+            status_label.config(text="motion.log deleted and canvas cleared.", fg=CRITICAL_COLOR)
         else:
             status_label.config(text="motion.log not found.", fg=WARNING_COLOR)
     except Exception as e:
         status_label.config(text=f"Error deleting log: {e}", fg=CRITICAL_COLOR)
 
-    clear_canvas(scrollable_frame, status_label)
+    for widget in scrollable_frame.winfo_children():
+        widget.destroy()
+    status_label.config(text="motion.log deleted and canvas cleared.", fg=CRITICAL_COLOR)
 
 def view_recovery_log():
     log_window = tk.Toplevel()

@@ -57,9 +57,12 @@ def launch_hector():
 
             config_str = ",".join(
                 f"{atype.get()}:{acount.get()}"
-                for atype, acount in agent_config
+                for entry in agent_config
+                if entry is not None
+                for atype, acount in [entry]
                 if atype and acount
-            )
+        )
+            
             os.environ["HECTOR_AGENT_CONFIG"] = config_str
 
             update_preview()
@@ -225,6 +228,7 @@ def remove_agent_row(index):
     for widget in agent_frame.grid_slaves(row=index):
         widget.destroy()
     agent_config[index - 1] = None
+    agent_config[:] = [entry for entry in agent_config if entry is not None]
     update_preview()
 
 tk.Button(agent_frame, text="Add Agent", command=add_agent_row, font=FONT, bg=ACCENT_COLOR, fg=DARK_BG).grid(row=99, column=0, columnspan=3, pady=5)
