@@ -116,19 +116,26 @@ def launch_hector():
                     f.write(f"# {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
                     for atype, aid in agents:
-                        x = 5 + t * 0.5 + hash(aid) % 3
-                        y = 5 + (t % 10) * 0.3 + hash(aid[::-1]) % 2
-                        theta = (t * 15 + hash(aid)) % 360
+                        i = int(aid.split("-")[-1]) - 1  # agent index
+                        zone_offset = i * 8
 
+                        # Base patrol orbit
+                        x = zone_offset + sin(t / 10 + i) * 6
+                        y = zone_offset + cos(t / 10 + i) * 6
+
+                        # Mission-specific behavior
                         if theatre == "search_and_rescue":
-                            x += (t % 5) * 0.2
-                            y += (t % 3) * 0.1
+                            x += sin((t + i * 3) / 15) * 4
+                            y += cos((t + i * 2) / 18) * 4
                         elif theatre == "firefighting":
-                            x += sin(t / 5) * 2
-                            y += cos(t / 5) * 2
+                            x += (i % 3) * 5 + sin(t / 3) * 2
+                            y += (i % 2) * 3 + cos(t / 4) * 2
                         elif theatre == "combat_ops":
-                            theta = (theta + 180) % 360
+                            x += ((-1)**i) * t * 0.2
+                            y += ((-1)**(i+1)) * t * 0.2
 
+                        theta = (t * 12 + i * 30) % 360
+                        
                         f.write(f"{aid}: x={x:.2f}, y={y:.2f}, θ={theta:.1f} degrees\n")
 
                         canvas_width = visualizer_canvas.winfo_width()
